@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!-- Resolvers -->
+	<beans:bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"></beans:bean>
+	<beans:bean id="themeResolver" class="org.springframework.web.servlet.theme.SessionThemeResolver"
+		p:defaultThemeName="standard" />
+	<!-- Theme Source -->
+	<beans:bean id="themeSource" class="org.springframework.ui.context.support.ResourceBundleThemeSource" />
+	<!-- I18N Source -->
+	<beans:bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource"
+		p:basenames="WEB-INF/i18n/appMessages" p:fallbackToSystemLocale="false" p:defaultEncoding="UTF-8" p:fileEncodings="UTF-8" />
+	<!-- Interceptors -->
+	<interceptors>
+		<beans:bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor" p:paramName="lang" />
+		<beans:bean class="org.springframework.web.servlet.theme.ThemeChangeInterceptor" p:paramName="theme" />
+	</interceptors>
+</beans:beans>

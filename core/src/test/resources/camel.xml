@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	<import resource="datasource-tx-jpa.xml"/>
+	<bean id="inserter" class="zobonapp.core.Inserter"/>
+	<camelContext xmlns="http://camel.apache.org/schema/spring">
+		<dataFormats>
+			<json id="abc" library="Jackson"/>
+		</dataFormats>
+		<route autoStartup="true">
+			<from uri="file://c:/zobonapp/hotlines/?delete=true&amp;initialDelay=3000" />
+			
+			<log message="Hello ${file:absolute.path}" loggingLevel="WARN" />
+			<unmarshal ref="abc"/>
+			<log message="====Unmarshaled====\n${body}" loggingLevel="WARN"/>
+			
+			<to uri="bean:inserter?method=insertItem"></to>
+			<!-- <to uri="file://myfiles/"></to>
+			<log message="Hello ${file:absolute.path}" loggingLevel="WARN" /> -->
+		</route>
+
+		<route>
+			<from uri="file://c:/zobonapp/?noop=true&amp;fileName=categories.csv&amp;initialDelay=500" />
+			<unmarshal>
+				<csv skipFirstLine="true"/>
+			 </unmarshal>
+			 <split>
+			 	<simple>body</simple>
+			 	<to uri="bean:inserter?method=insertGroups"></to>
+			 </split>
+			 
+		</route>
+	</camelContext>
+</beans>
