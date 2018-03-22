@@ -22,7 +22,7 @@
 		</route>
 
 		<route>
-			<from uri="file://c:/zadata/initdata/?noop=true&amp;fileName=categories.csv&amp;initialDelay=500" />
+			<from uri="file://c:/zadata/groups/?noop=true&amp;fileName=categories.csv&amp;initialDelay=500" />
 			<unmarshal>
 				<csv skipFirstLine="true"/>
 			 </unmarshal>

@@ -1,4 +1,4 @@
-package zobonapp.core;
+package zobonapp.core.setup;
 
 import java.util.ArrayList;
 import java.util.List;
