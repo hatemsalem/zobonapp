@@ -4,16 +4,17 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 @Entity
+@Table(uniqueConstraints= {@UniqueConstraint(columnNames= {"enName","type"}),@UniqueConstraint(columnNames= {"arName","type"})})
 public class Category extends AbstractEntity<Category>
 {
 	
-	@Column(unique=true)
 	@NotNull
 	private String arName;
-	@Column(unique=true)
 	@NotNull
 	private String enName;
 	private String arDesc;

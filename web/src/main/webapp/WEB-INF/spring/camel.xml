@@ -20,6 +20,17 @@
 			<!-- <to uri="file://myfiles/"></to>
 			<log message="Hello ${file:absolute.path}" loggingLevel="WARN" /> -->
 		</route>
+		
+		<route autoStartup="true">
+			<from uri="file://c:/zadata/hotlines/issues?delete=true&amp;initialDelay=3000" />
+			
+			<log message="Hello ${file:absolute.path}" loggingLevel="WARN" />
+			<unmarshal ref="abc"/>
+			<log message="====Unmarshaled====\n${body}" loggingLevel="WARN"/>
+			
+			<to uri="bean:inserter?method=insertItemWithIssues"></to>
+			
+		</route>
 
 		<route>
 			<from uri="file://c:/zadata/groups/?noop=true&amp;fileName=categories.csv&amp;initialDelay=500" />
