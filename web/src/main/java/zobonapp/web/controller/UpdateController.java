@@ -178,6 +178,7 @@ public class UpdateController
 				itemFields.add(String.format("\"id\":\"%s\"", item.getId()));
 				itemFields.add(String.format("\"enName\":\"%s\"", item.getEnName()));
 				itemFields.add(String.format("\"arName\":\"%s\"", item.getArName()));
+				itemFields.add(String.format("\"rank\":\"%s\"", item.getRank()));
 				itemFields.add(String.format("\"contactId\":\"%s\"", item.getContacts().get(0).getId()));
 				StringJoiner icRecord = new StringJoiner(",", "[", "]");
 				for (Category category : item.getCategories())
@@ -216,6 +217,7 @@ public class UpdateController
 			categoryFields.add(String.format("\"type\":%d", category.getType()));
 			categoryFields.add(String.format("\"keywords\":\"%s\"", category.getKeywords()));
 			categoryFields.add(String.format("\"status\":\"%s\"", category.getStatus()));
+			categoryFields.add(String.format("\"rank\":\"%s\"", category.getRank()));
 			categoryRecords.add(categoryFields.toString());
 		}
 		return categoryRecords.toString();
