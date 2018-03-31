@@ -1,7 +1,10 @@
 package zobonapp.core;
 
 import org.apache.camel.spring.Main;
+import org.springframework.context.support.GenericXmlApplicationContext;
 
+import zobonapp.core.service.ZobonAppService;
+import zobonapp.core.service.impl.ZobonAppServiceImpl;
 public class ZobonApp
 {
 
@@ -11,12 +14,21 @@ public class ZobonApp
 //		em.close();
 
 //		GenericXmlApplicationContext ctx=new GenericXmlApplicationContext();
-//		ctx.load("classpath:camel.xml");
+//		ctx.load("classpath:datasource-tx-jpa.xml");
+//		ctx.refresh();
+//		ZobonAppService service=ctx.getBean(ZobonAppService.class);
 		Main main=new Main();
 		main.setFileApplicationContextUri("classpath:camel.xml");
-//		ctx.refresh();
 		main.run();
-//		CategoryService service=ctx.getBean("categoryService",CategoryService.class);
+
+
+//		service.test();
+//		=ctx.getBean("itemService",Zobon)
+//		Main main=new Main();
+//		main.setFileApplicationContextUri("classpath:camel.xml");
+//		main.run();
+	
+//		ZobonApp service=ctx.getBean("itemService",ZobonAppService.class);
 //		Category category=new Category();
 //		category.setEnName("Restaurants")
 //			.setArName("المطاعم")

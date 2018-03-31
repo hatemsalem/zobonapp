@@ -3,6 +3,7 @@ package zobonapp.core.service.impl;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +16,11 @@ import zobonapp.core.domain.Item;
 import zobonapp.core.domain.Status;
 import zobonapp.core.repository.CategoryRepository;
 import zobonapp.core.repository.ItemRepository;
-import zobonapp.core.service.ZononAppService;
+import zobonapp.core.service.ZobonAppService;
 @Service("itemService")
 @Repository
 @Transactional
-public class ZobonAppServiceImpl implements ZononAppService
+public class ZobonAppServiceImpl implements ZobonAppService
 {
 	@Autowired
 	private CategoryRepository categoryRepository;
@@ -80,6 +81,24 @@ public class ZobonAppServiceImpl implements ZononAppService
 	public Iterable<Item> findUnpublishedItems(Date lastUpdate)
 	{
 		return itemRepository.findUnpubishedItems(lastUpdate);
+	}
+	@Override
+	public void test()
+	{
+		Item item=itemRepository.findOne(UUID.fromString("98abe435-844a-4864-b20b-4994e1f76004"));
+		System.out.println(item.getId());
+		System.out.println(item.getCategories().size());
+		
+	}
+	@Override
+	public List<UUID> findItemsIdsforHotline(String hotline)
+	{
+		return itemRepository.findItemsIdsforHotline("%"+hotline);
+	}
+	@Override
+	public int updateItemRank(UUID id, int rank)
+	{
+		return itemRepository.updateRank(id, rank);
 	}
 
 }

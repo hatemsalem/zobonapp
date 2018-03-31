@@ -19,8 +19,8 @@ import org.hibernate.annotations.GenericGenerator;
 public abstract class AbstractEntity<T extends AbstractEntity<?>>
 {
 	@Id
-	@GeneratedValue(generator="UUID")
 	@GenericGenerator(name="UUID",strategy="org.hibernate.id.UUIDGenerator")
+	@GeneratedValue(generator="UUID")
 	private UUID id;
 	public UUID getId()
 	{

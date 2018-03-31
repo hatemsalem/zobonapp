@@ -3,7 +3,10 @@ package zobonapp.core.setup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.Vector;
 
+import org.apache.camel.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import zobonapp.core.domain.Category;
@@ -11,14 +14,14 @@ import zobonapp.core.domain.Contact;
 import zobonapp.core.domain.Item;
 import zobonapp.core.domain.Status;
 import zobonapp.core.service.CategoryService;
-import zobonapp.core.service.ZononAppService;
+import zobonapp.core.service.ZobonAppService;
 
 public class Inserter
 {
 	@Autowired
 	private CategoryService categoryService;
 	@Autowired
-	private ZononAppService itemService;
+	private ZobonAppService itemService;
 	public void insertItem(Map<String,?> map)
 	{
 		
@@ -200,4 +203,23 @@ public class Inserter
 		System.out.println(category);
 		categoryService.save(category);
 	}
+//	public Exchange renameLogoFile(Exchange exchange)
+//	{
+//		return exchange;
+//	}
+	public void renameLogoFile(Exchange exchange)
+	{
+		String fileNameParent=exchange.getIn().getHeader("CamelFileParent").toString();
+		String hotline=exchange.getIn().getHeader("CamelFileNameOnly").toString().replaceAll("\\.\\w+", "");
+		String resolution=fileNameParent.substring(fileNameParent.lastIndexOf("\\")+1);
+		List<String> recipients=new Vector<>();
+		for(UUID id:itemService.findItemsIdsforHotline(hotline))
+		{
+			String uri=String.format("file://c://zadata/resources/%s/?fileName=%s.webp",resolution, id);
+			recipients.add(uri);
+			itemService.updateItemRank(id, 1);
+		} 
+		exchange.getIn().getHeaders().put("za.recipients", recipients);
+	}
+
 }

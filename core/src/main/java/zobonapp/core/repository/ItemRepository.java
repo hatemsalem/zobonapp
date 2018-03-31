@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -46,4 +47,11 @@ public interface ItemRepository extends CrudRepository<Item, UUID>
 	
 	@Query(value=latestQuery,nativeQuery=true)
 	Timestamp latestUpdate();
+	
+	@Query(value="select c.item.id from Contact c where c.uri like ?1")
+	List<UUID> findItemsIdsforHotline(String hotline);
+	
+	@Modifying
+	@Query("update Item i set i.rank=?2 where i.id=?1")
+	int updateRank(UUID id,int newRank);
 }

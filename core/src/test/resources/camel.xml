@@ -9,7 +9,15 @@
 		<dataFormats>
 			<json id="abc" library="Jackson"/>
 		</dataFormats>
-		<route autoStartup="true">
+		<route>
+			<from uri="file://c://zadata/init/res/?recursive=true&amp;noop=true&amp;initialDelay=100"/>
+			<to uri="bean:inserter?method=renameLogoFile"></to>
+			<log message="====Loop====${headers[za.recipients]}\n" loggingLevel="WARN"/>
+			<recipientList>
+				<header>za.recipients</header>
+			</recipientList>
+		</route> 
+		<route autoStartup="false">
 			<from uri="file://c:/zadata/hotlines/?delete=true&amp;initialDelay=3000" />
 			
 			<log message="Hello ${file:absolute.path}" loggingLevel="WARN" />
@@ -21,7 +29,7 @@
 			<log message="Hello ${file:absolute.path}" loggingLevel="WARN" /> -->
 		</route>
 
-		<route>
+		<route autoStartup="false">
 			<from uri="file://c:/zadata/initdata/?noop=true&amp;fileName=categories.csv&amp;initialDelay=500" />
 			<unmarshal>
 				<csv skipFirstLine="true"/>

@@ -9,12 +9,20 @@
 		<dataFormats>
 			<json id="abc" library="Jackson"/>
 		</dataFormats>
+		<route>
+			<from uri="file://c://zadata/init/res/?recursive=true&amp;noop=true&amp;initialDelay=120000"/>
+			<to uri="bean:inserter?method=renameLogoFile"></to>
+			<log message="====Loop====${headers[za.recipients]}\n" loggingLevel="WARN"/>
+			<recipientList>
+				<header>za.recipients</header>
+			</recipientList>
+		</route> 
 		<route autoStartup="true">
-			<from uri="file://c:/zadata/hotlines/?delete=true&amp;initialDelay=3000" />
+			<from uri="file://c:/zadata/init/hotlines/?delete=true&amp;initialDelay=10000" />
 			
 			<log message="Hello ${file:absolute.path}" loggingLevel="WARN" />
 			<unmarshal ref="abc"/>
-			<log message="====Unmarshaled====\n${body}" loggingLevel="WARN"/>
+			<!-- <log message="====Unmarshaled====\n${body}" loggingLevel="WARN"/> -->
 			
 			<to uri="bean:inserter?method=insertItem"></to>
 			<!-- <to uri="file://myfiles/"></to>
@@ -22,18 +30,18 @@
 		</route>
 		
 		<route autoStartup="true">
-			<from uri="file://c:/zadata/hotlines/issues?delete=true&amp;initialDelay=3000" />
+			<from uri="file://c:/zadata/init/hotlines/issues/?delete=true&amp;initialDelay=60000" />
 			
 			<log message="Hello ${file:absolute.path}" loggingLevel="WARN" />
 			<unmarshal ref="abc"/>
-			<log message="====Unmarshaled====\n${body}" loggingLevel="WARN"/>
+			<!-- <log message="====Unmarshaled====\n${body}" loggingLevel="WARN"/> -->
 			
 			<to uri="bean:inserter?method=insertItemWithIssues"></to>
 			
 		</route>
 
 		<route>
-			<from uri="file://c:/zadata/groups/?noop=true&amp;fileName=categories.csv&amp;initialDelay=500" />
+			<from uri="file://c:/zadata/init/?delete=true&amp;fileName=categories.csv&amp;initialDelay=500" />
 			<unmarshal>
 				<csv skipFirstLine="true"/>
 			 </unmarshal>

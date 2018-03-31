@@ -21,7 +21,7 @@ import zobonapp.core.domain.Category;
 import zobonapp.core.domain.Contact;
 import zobonapp.core.domain.Item;
 import zobonapp.core.service.CategoryService;
-import zobonapp.core.service.ZononAppService;
+import zobonapp.core.service.ZobonAppService;
 
 @Controller
 @RequestMapping("/")
@@ -32,7 +32,7 @@ public class UpdateController
 	@Autowired
 	private CategoryService categoryService;
 	@Autowired
-	private ZononAppService zobonAppService;
+	private ZobonAppService zobonAppService;
 
 	@RequestMapping(value = "/updates/ver-{version}/{lastUpdated}", method = RequestMethod.GET)
 	public void getUpdateFiles(HttpServletResponse response, @PathVariable String version,@PathVariable long lastUpdated) throws IOException
