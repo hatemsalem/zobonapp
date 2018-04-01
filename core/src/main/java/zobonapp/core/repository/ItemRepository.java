@@ -52,6 +52,6 @@ public interface ItemRepository extends CrudRepository<Item, UUID>
 	List<UUID> findItemsIdsforHotline(String hotline);
 	
 	@Modifying
-	@Query("update Item i set i.rank=?2 where i.id=?1")
+	@Query("update Item i set i.rank=?2,version=version+1,updated=CURRENT_TIMESTAMP where i.id=?1")
 	int updateRank(UUID id,int newRank);
 }

@@ -13,6 +13,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
 @MappedSuperclass
@@ -31,10 +32,10 @@ public abstract class AbstractEntity<T extends AbstractEntity<?>>
 		this.id = id;
 		return (T)this;
 	}
-	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(nullable=false)
 	private Date created;
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(nullable=false)
 	private Date updated;
