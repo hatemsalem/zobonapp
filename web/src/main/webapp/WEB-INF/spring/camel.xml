@@ -10,7 +10,7 @@
 			<json id="abc" library="Jackson"/>
 		</dataFormats>
 		<route>
-			<from uri="file://c://zadata/init/res/?recursive=true&amp;noop=true&amp;initialDelay=120000"/>
+			<from uri="file://c://zadata/init/res/?recursive=true&amp;delete=true&amp;initialDelay=120000"/>
 			<to uri="bean:inserter?method=renameLogoFile"></to>
 			<log message="====Loop====${headers[za.recipients]}\n" loggingLevel="WARN"/>
 			<recipientList>
