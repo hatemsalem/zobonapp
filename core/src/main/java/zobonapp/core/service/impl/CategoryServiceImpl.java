@@ -43,15 +43,15 @@ public class CategoryServiceImpl implements CategoryService
 	}
 
 	@Override
-	public Category findByEnName(String enName)
+	public Category findByEnNameAndType(String enName,int type)
 	{
-		return categoryRepository.findByEnName(enName);
+		return categoryRepository.findByEnNameAndType(enName,type);
 	}
 
 	@Override
-	public Category findByArName(String arName)
+	public Category findByArNameAndType(String arName,int type)
 	{
-		return categoryRepository.findByArName(arName);
+		return categoryRepository.findByArNameAndType(arName,type);
 	}
 
 	@Override
@@ -70,6 +70,12 @@ public class CategoryServiceImpl implements CategoryService
 	public Iterable<Category> findUnpublishedCategories(Date lastUpdate)
 	{
 		return categoryRepository.findUnpubishedCategories(lastUpdate);
+	}
+
+	@Override
+	public Iterable<Category> findCategoryByEnName(String enName)
+	{
+		return categoryRepository.findByEnName(enName);
 	}
 
 

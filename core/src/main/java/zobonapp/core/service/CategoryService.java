@@ -9,8 +9,9 @@ public interface CategoryService
 {
 	Category save(Category category);
 	Iterable<Category> findAllCategories();
-	Category findByEnName(String enName);
-	Category findByArName(String arName);
+	Iterable<Category> findCategoryByEnName(String enName);
+	Category findByEnNameAndType(String enName,int type);
+	Category findByArNameAndType(String arName,int type);
 	Category update(UUID uuid,int rank);
 	Iterable<Category> findNewCategories(Date lastUpdate);
 	Iterable<Category> findUpdatedCategories(Date lastUpdate);

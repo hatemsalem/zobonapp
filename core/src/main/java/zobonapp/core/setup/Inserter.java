@@ -8,6 +8,8 @@ import java.util.Vector;
 
 import org.apache.camel.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import zobonapp.core.domain.Category;
 import zobonapp.core.domain.Contact;
@@ -25,8 +27,8 @@ public class Inserter
 	public void insertItem(Map<String,?> map)
 	{
 		
-		Category hotlineCategory=categoryService.findByEnName("Phone");
-		Category addressCategory=categoryService.findByEnName("Address");
+		Category hotlineCategory=categoryService.findByEnNameAndType("Phone",4001);
+		Category addressCategory=categoryService.findByEnNameAndType("Address",4001);
 		ArrayList<Map<String,?>> items=(ArrayList<Map<String,?>>)map.get("items");
 		for(Map<String,?> anItem:items)
 		{
@@ -111,8 +113,8 @@ public class Inserter
 	public void insertItemWithIssues(Map<String,?> map)
 	{
 		
-		Category hotlineCategory=categoryService.findByEnName("Phone");
-		Category addressCategory=categoryService.findByEnName("Address");
+		Category hotlineCategory=categoryService.findByEnNameAndType("Phone",4001);
+		Category addressCategory=categoryService.findByEnNameAndType("Address",4001);
 		ArrayList<Map<String,?>> items=(ArrayList<Map<String,?>>)map.get("items");
 		for(Map<String,?> anItem:items)
 		{
@@ -124,9 +126,10 @@ public class Inserter
 			if(item==null)
 			{
 				item=new Item();
-				item.setArName(arName);
-				item.setEnName(enName);
+				
 			}
+			item.setArName(arName);
+			item.setEnName(enName);
 
 			Contact mainContact=null;
 			Contact firstContact=null;
@@ -201,7 +204,23 @@ public class Inserter
 		category.setStatus(Status.valueOf(record.get(7)));
 		category.setType(Integer.parseInt(record.get(8)));
 		System.out.println(category);
-		categoryService.save(category);
+		try
+		{
+			categoryService.save(category);
+		} catch (DataAccessException dae)
+		{
+			Category updatedCategory=categoryService.findByEnNameAndType(category.getEnName(),category.getType());
+			if(updatedCategory==null)
+				updatedCategory=categoryService.findByArNameAndType(category.getArName(),category.getType());
+			if(updatedCategory!=null)
+			{
+				category.setId(updatedCategory.getId());
+				categoryService.save(category);
+			}
+			else 
+				throw dae;
+		}
+		
 	}
 //	public Exchange renameLogoFile(Exchange exchange)
 //	{
@@ -221,5 +240,21 @@ public class Inserter
 		} 
 		exchange.getIn().getHeaders().put("za.recipients", recipients);
 	}
+	
+	public void renameCatLogoFile(Exchange exchange)
+	{
+		String fileNameParent=exchange.getIn().getHeader("CamelFileParent").toString();
+		String enGroupName=exchange.getIn().getHeader("CamelFileNameOnly").toString().replaceAll("\\.\\w+", "");
+		String resolution=fileNameParent.substring(fileNameParent.lastIndexOf("\\")+1);
+		List<String> recipients=new Vector<>(); 
+		for(Category category:categoryService.findCategoryByEnName(enGroupName))
+		{
+			String uri=String.format("file://c://zadata/resources/%s/?fileName=%s.webp",resolution, category.getId());
+			recipients.add(uri);
+//			itemService.updateItemRank(id, 1);
+		} 
+		exchange.getIn().getHeaders().put("za.recipients", recipients);
+	}
+
 
 }

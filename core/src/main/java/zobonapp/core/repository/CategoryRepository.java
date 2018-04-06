@@ -12,8 +12,11 @@ import zobonapp.core.domain.Status;
 
 public interface CategoryRepository extends CrudRepository<Category, UUID>
 {
-	Category findByArName(String arName);
-	Category findByEnName(String enName);
+	Iterable<Category> findByArName(String arName);
+	Category findByArNameAndType(String arName,int type);
+	
+	Iterable<Category> findByEnName(String enName);
+	Category findByEnNameAndType(String enName,int type);
 	
 	@Query("select c from Category c where c.status=?1 and c.created>?2")
 	Iterable<Category> findNewCategories(Status status,Date lastUpdate);

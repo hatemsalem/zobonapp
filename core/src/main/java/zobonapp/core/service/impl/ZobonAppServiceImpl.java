@@ -3,6 +3,7 @@ package zobonapp.core.service.impl;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,10 +32,10 @@ public class ZobonAppServiceImpl implements ZobonAppService
 	{
 		for(String category:categories)
 		{
-			Category theCategory=categoryRepository.findByEnName(category);
-			if(theCategory!=null)
-				item.getCategories().add(theCategory);
-			else System.out.println("Category Not Found:"+theCategory );
+			Iterator< Category> entities=categoryRepository.findByEnName(category).iterator();
+			if(entities!=null&&entities.hasNext())
+				item.getCategories().add(entities.next());
+			else System.out.println("Category Not Found:"+category );
 		}
 		// TODO Auto-generated method stub
 		return itemRepository.save(item);
