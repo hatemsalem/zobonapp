@@ -18,7 +18,7 @@
 			</recipientList>
 		</route>
 		<route>
-			<from uri="file://c://zadata/init/cat_res/?recursive=true&amp;noop=true&amp;initialDelay=10000" />
+			<from uri="file://c://zadata/init/cat_res/?recursive=true&amp;delete=true&amp;initialDelay=10000" />
 			<to uri="bean:inserter?method=renameCatLogoFile"></to>
 			<log message="====Loop====${headers[za.recipients]}\n" loggingLevel="WARN" />
 			<recipientList>
