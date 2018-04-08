@@ -14,9 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import zobonapp.core.domain.Category;
 import zobonapp.core.domain.Item;
+import zobonapp.core.domain.Offer;
 import zobonapp.core.domain.Status;
 import zobonapp.core.repository.CategoryRepository;
 import zobonapp.core.repository.ItemRepository;
+import zobonapp.core.repository.OfferRepository;
 import zobonapp.core.service.ZobonAppService;
 @Service("itemService")
 @Repository
@@ -27,6 +29,8 @@ public class ZobonAppServiceImpl implements ZobonAppService
 	private CategoryRepository categoryRepository;
 	@Autowired
 	private ItemRepository itemRepository;
+	@Autowired
+	private OfferRepository offerRepository;
 	@Override
 	public Item save(Item item, ArrayList<String> categories)
 	{
@@ -100,6 +104,11 @@ public class ZobonAppServiceImpl implements ZobonAppService
 	public int updateItemRank(UUID id, int rank)
 	{
 		return itemRepository.updateRank(id, rank);
+	}
+	@Override
+	public Iterable<Offer> findNewOffers(Date lastUpdate)
+	{
+		return  offerRepository.findNewOffers(Status.PUBLISHED, lastUpdate);
 	}
 
 }

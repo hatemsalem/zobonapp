@@ -1,6 +1,7 @@
 package zobonapp.web.controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.StringJoiner;
@@ -20,6 +21,7 @@ import zobonapp.core.domain.AbstractEntity;
 import zobonapp.core.domain.Category;
 import zobonapp.core.domain.Contact;
 import zobonapp.core.domain.Item;
+import zobonapp.core.domain.Offer;
 import zobonapp.core.service.CategoryService;
 import zobonapp.core.service.ZobonAppService;
 
@@ -109,6 +111,10 @@ public class UpdateController
 		sjFile.add(String.format("\"categories\":\n%s", populateCategories(categoryService.findNewCategories(timePoint))));
 		sjFile.add(String.format("\"entities\":\n%s", itemRecords));
 		sjFile.add(String.format("\"contacts\":\n%s", populateContacts(basicContacts)));
+		if(lastUpdate>=0)
+		{
+			sjFile.add(String.format("\"offers\":\n%s", populateOffers(zobonAppService.findNewOffers(timePoint))));
+		}
 
 		return sjFile.toString();
 	}
@@ -138,6 +144,35 @@ public class UpdateController
 		sjFile.add(String.format("\"deletedCategories\":\n%s", unpublishElements(categoryService.findUnpublishedCategories(timePoint))));
 		sjFile.add(String.format("\"deletedEntities\":\n%s", unpublishElements(zobonAppService.findUnpublishedItems(timePoint))));
 		return sjFile.toString();
+	}
+	private String populateOffers(Iterable<Offer> offers)
+	{
+		StringJoiner offerRecords = new StringJoiner(",\n", "[", "]");
+		SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd");
+		for(Offer offer:offers)
+		{
+			StringJoiner offerFields = new StringJoiner(",\n", "{", "}");
+			offerFields.add(String.format("\"id\":\"%s\"", offer.getId()));
+			offerFields.add(String.format("\"enName\":\"%s\"", offer.getEnName()));
+			offerFields.add(String.format("\"arName\":\"%s\"", offer.getArName()));
+			offerFields.add(String.format("\"startDate\":\"%s\"", sdf.format(offer.getStartDate())));
+			offerFields.add(String.format("\"endDate\":\"%s\"", sdf.format(offer.getEndDate())));
+			offerFields.add(String.format("\"pages\":%d", offer.getPages()));
+			offerFields.add(String.format("\"rank\":\"%d\"", offer.getRank()));
+			offerFields.add(String.format("\"keywords\":\"%S\"", offer.getKeywords()));
+			offerFields.add(String.format("\"entityId\":\"%s\"", offer.getItem().getId()));
+			StringJoiner icRecord = new StringJoiner(",", "[", "]");
+			for (Category category : offer.getCategories())
+			{
+				icRecord.add(String.format("\"%s\"", category.getId()));
+
+			}
+			offerFields.add(String.format("\"categories\":%s", icRecord.toString()));
+			
+			offerRecords.add(offerFields.toString());
+			
+		}
+		return offerRecords.toString();
 	}
 	private String populateContacts(Iterable<Contact> contacts)
 	{

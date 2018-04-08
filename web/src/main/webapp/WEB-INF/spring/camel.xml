@@ -4,6 +4,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 	<import resource="datasource-tx-jpa.xml" />
+	<import resource="offers-workers.xml"/>
 	<bean id="inserter" class="zobonapp.core.setup.Inserter" />
 	<camelContext xmlns="http://camel.apache.org/schema/spring">
 		<dataFormats>
@@ -58,6 +59,11 @@
 				<to uri="bean:inserter?method=insertGroups"></to>
 			</split>
 
+		</route>
+		<route>
+			<from uri="timer://worker?period=10m&amp;delay=1000"></from>
+			<log message="====Timer triggering====" loggingLevel="WARN"/>
+			<to uri="bean:worker?method=run"></to>
 		</route>
 	</camelContext>
 </beans>

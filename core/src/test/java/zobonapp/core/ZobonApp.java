@@ -5,6 +5,7 @@ import org.springframework.context.support.GenericXmlApplicationContext;
 
 import zobonapp.core.service.ZobonAppService;
 import zobonapp.core.service.impl.ZobonAppServiceImpl;
+import zobonapp.core.setup.YabalashWorker;
 public class ZobonApp
 {
 
@@ -14,9 +15,12 @@ public class ZobonApp
 //		em.close();
 
 //		GenericXmlApplicationContext ctx=new GenericXmlApplicationContext();
-//		ctx.load("classpath:datasource-tx-jpa.xml");
+//		ctx.load("classpath:offers-workers.xml");
 //		ctx.refresh();
-//		ZobonAppService service=ctx.getBean(ZobonAppService.class);
+//		YabalashWorker worker=ctx.getBean(YabalashWorker.class);
+//		worker.run();
+		
+		
 		Main main=new Main();
 		main.setFileApplicationContextUri("classpath:camel.xml");
 		main.run();

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import zobonapp.core.domain.Item;
+import zobonapp.core.domain.Offer;
 
 public interface ZobonAppService
 {
@@ -18,6 +19,7 @@ public interface ZobonAppService
 	Iterable<Item> findNewItems(Date lastUpdate);
 	Iterable<Item> findUpdatedItems(Date lastUpdate);
 	Iterable<Item> findUnpublishedItems(Date lastUpdate);
+	Iterable<Offer> findNewOffers(Date lastUpdate);
 	Timestamp latestUpdate();
 	List<UUID> findItemsIdsforHotline(String hotline);
 	int updateItemRank(UUID id,int rank);

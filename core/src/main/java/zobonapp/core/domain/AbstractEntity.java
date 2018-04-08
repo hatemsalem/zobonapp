@@ -23,15 +23,7 @@ public abstract class AbstractEntity<T extends AbstractEntity<?>>
 	@GenericGenerator(name="UUID",strategy="org.hibernate.id.UUIDGenerator")
 	@GeneratedValue(generator="UUID")
 	private UUID id;
-	public UUID getId()
-	{
-		return id;
-	}
-	public T setId(UUID id)
-	{
-		this.id = id;
-		return (T)this;
-	}
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(nullable=false)
 	private Date created;
@@ -53,6 +45,20 @@ public abstract class AbstractEntity<T extends AbstractEntity<?>>
 	{
 		updated=new Date();
 	}
+	
+	
+	public UUID getId()
+	{
+		return id;
+	}
+	public T setId(UUID id)
+	{
+		this.id = id;
+		return (T)this;
+	}
+	
+	
+	
 	public Date getCreated()
 	{
 		return created;
