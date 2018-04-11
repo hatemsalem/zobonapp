@@ -11,8 +11,10 @@ import zobonapp.core.domain.Offer;
 
 public interface ZobonAppService
 {
-	Item save(Item item, ArrayList<String> categories);
+	Item save(Item item, List<String> categories);
+	Offer save(Offer offer,List<String> categories);
 	Item save(Item item);
+	Offer save(Offer offer);
 	Item find(UUID id);
 	Item findByArName(String arName);
 	Item findByEnName(String enName);

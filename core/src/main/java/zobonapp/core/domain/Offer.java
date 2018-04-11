@@ -1,7 +1,9 @@
 package zobonapp.core.domain;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -37,7 +39,7 @@ public class Offer extends AbstractEntity<Offer>
 	private String src;
 	private String srcId;
 	@ManyToMany
-	List<Category> categories;
+	Set<Category> categories=new HashSet<>();
 	@Enumerated(EnumType.ORDINAL)
 	@NotNull
 	private Status status;
@@ -121,11 +123,11 @@ public class Offer extends AbstractEntity<Offer>
 	{
 		this.srcId = srcId;
 	}
-	public List<Category> getCategories()
+	public Set<Category> getCategories()
 	{
 		return categories;
 	}
-	public void setCategories(List<Category> categories)
+	public void setCategories(Set<Category> categories)
 	{
 		this.categories = categories;
 	}

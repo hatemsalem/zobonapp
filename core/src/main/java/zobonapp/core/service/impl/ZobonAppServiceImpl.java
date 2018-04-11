@@ -32,7 +32,7 @@ public class ZobonAppServiceImpl implements ZobonAppService
 	@Autowired
 	private OfferRepository offerRepository;
 	@Override
-	public Item save(Item item, ArrayList<String> categories)
+	public Item save(Item item, List<String> categories)
 	{
 		for(String category:categories)
 		{
@@ -109,6 +109,24 @@ public class ZobonAppServiceImpl implements ZobonAppService
 	public Iterable<Offer> findNewOffers(Date lastUpdate)
 	{
 		return  offerRepository.findNewOffers(Status.PUBLISHED, lastUpdate);
+	}
+	@Override
+	public Offer save(Offer offer, List<String> categories)
+	{
+		for(String category:categories)
+		{
+			Iterator< Category> entities=categoryRepository.findByEnName(category).iterator();
+			if(entities!=null&&entities.hasNext())
+				offer.getCategories().add(entities.next());
+			else System.out.println("Category Not Found:"+category );
+		}
+		// TODO Auto-generated method stub
+		return offerRepository.save(offer);
+	}
+	@Override
+	public Offer save(Offer offer)
+	{
+		return offerRepository.save(offer);
 	}
 
 }

@@ -60,10 +60,15 @@
 			</split>
 
 		</route>
-		<route>
-			<from uri="timer://worker?period=10m&amp;delay=1000"></from>
+		<route autoStartup="false">
+			<from uri="timer://worker1?period=10m&amp;delay=1000"></from>
 			<log message="====Timer triggering====" loggingLevel="WARN"/>
-			<to uri="bean:worker?method=run"></to>
+			<to uri="bean:yabalashWorker?method=run"></to>
+		</route>
+		<route>
+			<from uri="timer://worker2?period=10m&amp;delay=1000"></from>
+			<log message="====Timer triggering====" loggingLevel="WARN"/>
+			<to uri="bean:oroodWorker?method=run"></to>
 		</route>
 	</camelContext>
 </beans>
