@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
 	@NamedEntityGraph(name="item.categories",attributeNodes= {@NamedAttributeNode("categories"),@NamedAttributeNode("contacts")})
 })
 
-public class Item extends AbstractEntity<Item>
+public class BusinessEntity extends AbstractEntity<BusinessEntity>
 {
 	@Column(unique=true)
 	@NotNull
@@ -38,11 +38,13 @@ public class Item extends AbstractEntity<Item>
 	private boolean favorite;
 	private String keywords;
 	private int rank;
+	private String web;
+	private String facebook;
 	
 	@OneToOne(fetch=FetchType.EAGER)
 	private Contact mainContact;
 	
-	@OneToMany(cascade=CascadeType.ALL, orphanRemoval=true,mappedBy="item")
+	@OneToMany(cascade=CascadeType.ALL, orphanRemoval=true,mappedBy="entity")
 	@OrderColumn(name="rank",nullable=false)
 	private List<Contact> contacts=new ArrayList<>();
 	
@@ -157,6 +159,26 @@ public class Item extends AbstractEntity<Item>
 	public Status getStatus()
 	{
 		return status;
+	}
+
+	public String getWeb()
+	{
+		return web;
+	}
+
+	public void setWeb(String web)
+	{
+		this.web = web;
+	}
+
+	public String getFacebook()
+	{
+		return facebook;
+	}
+
+	public void setFacebook(String facebook)
+	{
+		this.facebook = facebook;
 	}
 
 	public void setStatus(Status status)

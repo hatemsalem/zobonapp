@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 public class Menu extends AbstractEntity<Menu>
 {
 	@ManyToOne
-	private Item item;
+	private BusinessEntity entity;
 	
 	private String arName;
 	private String enName;

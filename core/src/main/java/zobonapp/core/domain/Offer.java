@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
 public class Offer extends AbstractEntity<Offer>
 {
 	@ManyToOne
-	private Item item;
+	private BusinessEntity entity;
 	
 	private String arName;
 	private String enName;
@@ -43,13 +43,13 @@ public class Offer extends AbstractEntity<Offer>
 	@Enumerated(EnumType.ORDINAL)
 	@NotNull
 	private Status status;
-	public Item getItem()
+	public BusinessEntity getEntity()
 	{
-		return item;
+		return entity;
 	}
-	public void setItem(Item item)
+	public void setEntity(BusinessEntity entity)
 	{
-		this.item = item;
+		this.entity = entity;
 	}
 	public String getArName()
 	{

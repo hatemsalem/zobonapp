@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import zobonapp.core.domain.Category;
-import zobonapp.core.domain.Item;
+import zobonapp.core.domain.BusinessEntity;
 import zobonapp.core.domain.Status;
 
 public interface CategoryRepository extends CrudRepository<Category, UUID>

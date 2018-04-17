@@ -11,47 +11,49 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
-import zobonapp.core.domain.Item;
+import zobonapp.core.domain.BusinessEntity;
 import zobonapp.core.domain.Status;
 
-public interface ItemRepository extends CrudRepository<Item, UUID>
+public interface ItemRepository extends CrudRepository<BusinessEntity, UUID>
 {
 	String latestQuery="select max(updated) from" + 
 			"(" + 
-			"select max(updated) updated from item union " + 
-			"select max(updated) updated from category union " + 
+			"select max(updated) updated from businessentity union " + 
+			"select max(updated) updated from category union " +
+			"select max(updated) updated from offer union " +
+			"select max(updated) updated from menu union " + 
 			"select max(updated) updated from contact " + 
 			"    ) results" + 
 			"\r\n" + 
 			"";
 	
 	@EntityGraph(value="item.categories" ,type=EntityGraphType.LOAD)
-	@Query("select distinct i from Item i where i.status=?1 and i.created>?2")
-	Iterable<Item> findNewItems(Status status,Date lastUpdate);
+	@Query("select distinct i from BusinessEntity i where i.status=?1 and i.created>?2")
+	Iterable<BusinessEntity> findNewItems(Status status,Date lastUpdate);
 	
 	@EntityGraph(value="item.categories" ,type=EntityGraphType.LOAD)
-	@Query("select distinct i from Item i where i.status=?1 and i.updated>?2 and i.created<=?2")
-	Iterable<Item> findUpdatedItems(Status status,Date lastUpdate);
+	@Query("select distinct i from BusinessEntity i where i.status=?1 and i.updated>?2 and i.created<=?2")
+	Iterable<BusinessEntity> findUpdatedItems(Status status,Date lastUpdate);
 	
 	
-	@Query("select distinct i from Item i where i.status<>zobonapp.core.domain.Status.PUBLISHED and i.updated>?1 and i.created<=?1")
-	Iterable<Item> findUnpubishedItems(Date lastUpdate);
+	@Query("select distinct i from BusinessEntity i where i.status<>zobonapp.core.domain.Status.PUBLISHED and i.updated>?1 and i.created<=?1")
+	Iterable<BusinessEntity> findUnpubishedItems(Date lastUpdate);
 	
 	
 	
 	@EntityGraph(value="item.categories" ,type=EntityGraphType.LOAD)
-	Item findByArName(String arName);
+	BusinessEntity findByArName(String arName);
 	@EntityGraph(value="item.categories" ,type=EntityGraphType.LOAD)
-	Item findByEnName(String enName);
+	BusinessEntity findByEnName(String enName);
 	
 	
 	@Query(value=latestQuery,nativeQuery=true)
 	Timestamp latestUpdate();
 	
-	@Query(value="select c.item.id from Contact c where c.uri like ?1")
+	@Query(value="select c.entity.id from Contact c where c.uri like ?1")
 	List<UUID> findItemsIdsforHotline(String hotline);
 	
 	@Modifying
-	@Query("update Item i set i.rank=?2,version=version+1,updated=CURRENT_TIMESTAMP where i.id=?1")
-	int updateRank(UUID id,int newRank);
+	@Query("update BusinessEntity i set i.rank=?2,version=version+1,updated=?3 where i.id=?1")
+	int updateRank(UUID id,int newRank,Date updated);
 }

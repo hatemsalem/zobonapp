@@ -1,6 +1,7 @@
 package zobonapp.web.controller;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import zobonapp.core.domain.AbstractEntity;
 import zobonapp.core.domain.Category;
 import zobonapp.core.domain.Contact;
-import zobonapp.core.domain.Item;
+import zobonapp.core.domain.BusinessEntity;
 import zobonapp.core.domain.Offer;
 import zobonapp.core.service.CategoryService;
 import zobonapp.core.service.ZobonAppService;
@@ -29,50 +30,44 @@ import zobonapp.core.service.ZobonAppService;
 @RequestMapping("/")
 public class UpdateController
 {
-	
+	enum UpdateType
+		{
+				RESET,INIT,WARN,BLOCK,NORM
+		};
 	private final static int  STEP_SIZE=1000;
 	@Autowired
 	private CategoryService categoryService;
 	@Autowired
 	private ZobonAppService zobonAppService;
 
-	@RequestMapping(value = "/updates/ver-{version}/{lastUpdated}", method = RequestMethod.GET)
-	public void getUpdateFiles(HttpServletResponse response, @PathVariable String version,@PathVariable long lastUpdated) throws IOException
+	@RequestMapping(value = "/updates/ver-{version}/{lastUpdated}", method = RequestMethod.POST)
+	public void getUpdateFiles(HttpServletResponse response, @PathVariable int version,@PathVariable long lastUpdated) throws IOException
 	{
 		response.setContentType("zip/application;charset=UTF-8");
 
 		response.setHeader("Content-Disposition", String.format("attachment;filename=updates%d.zip",lastUpdated));
 		
 		ZipOutputStream zipOutputStream=new ZipOutputStream(response.getOutputStream());
-
 		zipOutputStream.putNextEntry(new ZipEntry("datanew.json"));
-		List<Contact> contacts=new Vector<>();
-		zipOutputStream.write(getNewData(contacts,lastUpdated).getBytes("UTF-8"));
-		
-		
-		int totalsteps=contacts.size()/STEP_SIZE+1;
-		for(int i=0;i<totalsteps;i++)
+		UpdateType updateType=getUpdateType(version,lastUpdated);
+		switch(updateType)
 		{
-			zipOutputStream.putNextEntry(new ZipEntry("n_step"+i+".json"));
-			int start=i*STEP_SIZE;
-			int end=start+STEP_SIZE;
-			end=end>contacts.size()?contacts.size():end;
-			String contactRecords=populateContacts(contacts.subList(start, end));
-			zipOutputStream.write(String.format("{\"contacts\":\n%s}", contactRecords).getBytes("UTF-8"));
-		}
-		
-		if(lastUpdated>0)
-		{
-
-			zipOutputStream.putNextEntry(new ZipEntry("dataupdate.json"));
-			contacts=new Vector<>();
-			zipOutputStream.write(getUpdatedData(contacts,lastUpdated).getBytes("UTF-8"));
+		case BLOCK:
+			zipOutputStream.write(getEmptyData(updateType).getBytes("UTF-8"));
+			break;
+		case INIT:
+		case NORM:
+		case RESET:
+		case WARN:
+		default:
+			List<Contact> contacts=new Vector<>();
+			zipOutputStream.write(getNewData(contacts,lastUpdated,updateType).getBytes("UTF-8"));
 			
 			
-			totalsteps=contacts.size()/STEP_SIZE+1;
+			int totalsteps=contacts.size()/STEP_SIZE+1;
 			for(int i=0;i<totalsteps;i++)
 			{
-				zipOutputStream.putNextEntry(new ZipEntry("u_step"+i+".json"));
+				zipOutputStream.putNextEntry(new ZipEntry("n_step"+i+".json"));
 				int start=i*STEP_SIZE;
 				int end=start+STEP_SIZE;
 				end=end>contacts.size()?contacts.size():end;
@@ -80,24 +75,65 @@ public class UpdateController
 				zipOutputStream.write(String.format("{\"contacts\":\n%s}", contactRecords).getBytes("UTF-8"));
 			}
 			
-			zipOutputStream.putNextEntry(new ZipEntry("datadelete.json"));
-			contacts=new Vector<>();
-			zipOutputStream.write(getDeletedData(lastUpdated).getBytes("UTF-8"));
+			if(lastUpdated>0)
+			{
+
+				zipOutputStream.putNextEntry(new ZipEntry("dataupdate.json"));
+				contacts=new Vector<>();
+				zipOutputStream.write(getUpdatedData(contacts,lastUpdated).getBytes("UTF-8"));
+				
+				
+				totalsteps=contacts.size()/STEP_SIZE+1;
+				for(int i=0;i<totalsteps;i++)
+				{
+					zipOutputStream.putNextEntry(new ZipEntry("u_step"+i+".json"));
+					int start=i*STEP_SIZE;
+					int end=start+STEP_SIZE;
+					end=end>contacts.size()?contacts.size():end;
+					String contactRecords=populateContacts(contacts.subList(start, end));
+					zipOutputStream.write(String.format("{\"contacts\":\n%s}", contactRecords).getBytes("UTF-8"));
+				}
+				
+				zipOutputStream.putNextEntry(new ZipEntry("datadelete.json"));
+				contacts=new Vector<>();
+				zipOutputStream.write(getDeletedData(lastUpdated).getBytes("UTF-8"));
+			}
+
+
+			break;
+			
 		}
 
+		
 		
 		zipOutputStream.flush();
 		zipOutputStream.close();
 		
 	}
 	
+	private UpdateType getUpdateType(int version,long lastUpdated)
+	{
+		UpdateType result=UpdateType.NORM;
+		if(lastUpdated<=0)
+			result=UpdateType.INIT;
+		else if(System.currentTimeMillis()-lastUpdated>(24*60*60*1000))
+			result=UpdateType.RESET;
+		else if(version <10)
+			result=UpdateType.BLOCK;
+		else if(version <17)
+			result=UpdateType.WARN;
+		else 
+			result=UpdateType.NORM;
+		return result;
+	}
+
 	@RequestMapping(value = "/updates/ver-{version}", method = RequestMethod.GET)
-	public void initialFiles(HttpServletResponse response, @PathVariable String version) throws IOException
+	public void initialFiles(HttpServletResponse response, @PathVariable int version) throws IOException
 	{
 		getUpdateFiles(response,version,-1);
 		
 	}
-	private String getNewData(List<Contact> detailContacts,long lastUpdate)
+	private String getNewData(List<Contact> detailContacts,long lastUpdate,UpdateType updateType)
 	{
 		Date timePoint=new Date(lastUpdate);
 		StringJoiner sjFile = new StringJoiner(",\n", "{", "}");
@@ -106,8 +142,11 @@ public class UpdateController
 		List<Contact> basicContacts=new Vector<>();
 		String itemRecords=populateItems(zobonAppService.findNewItems(timePoint), detailContacts,  basicContacts);
 		int steps=(detailContacts==null)?0:(detailContacts.size()/STEP_SIZE+1);
+		sjFile.add(String.format("\"type\":\"%s\"\n", updateType));
 		sjFile.add(String.format("\"steps\":%d\n", steps));
-		sjFile.add(String.format("\"latestUpdate\":%d\n", zobonAppService.latestUpdate().getTime()));
+		Timestamp ts=zobonAppService.latestUpdate();
+		
+		sjFile.add(String.format("\"latestUpdate\":%d\n", ts==null?0:ts.getTime()));
 		sjFile.add(String.format("\"categories\":\n%s", populateCategories(categoryService.findNewCategories(timePoint))));
 		sjFile.add(String.format("\"entities\":\n%s", itemRecords));
 		sjFile.add(String.format("\"contacts\":\n%s", populateContacts(basicContacts)));
@@ -116,6 +155,14 @@ public class UpdateController
 			sjFile.add(String.format("\"offers\":\n%s", populateOffers(zobonAppService.findNewOffers(timePoint))));
 		}
 
+		return sjFile.toString();
+	}
+	private String getEmptyData(UpdateType updateType)
+	{
+		StringJoiner sjFile = new StringJoiner(",\n", "{", "}");
+		
+		sjFile.add(String.format("\"type\":%s\n", updateType));
+		sjFile.add(String.format("\"latestUpdate\":%d\n", zobonAppService.latestUpdate().getTime()));
 		return sjFile.toString();
 	}
 	private String getUpdatedData(List<Contact> detailContacts,long lastUpdate)
@@ -132,6 +179,7 @@ public class UpdateController
 		sjFile.add(String.format("\"categories\":\n%s", populateCategories(categoryService.findUpdatedCategories(timePoint))));
 		sjFile.add(String.format("\"entities\":\n%s", itemRecords));
 		sjFile.add(String.format("\"contacts\":\n%s", populateContacts(basicContacts)));
+		sjFile.add(String.format("\"offers\":\n%s", populateOffers(zobonAppService.findUpdatedOffers(timePoint))));
 		return sjFile.toString();
 	}
 	private String getDeletedData(long lastUpdate)
@@ -143,6 +191,7 @@ public class UpdateController
 		sjFile.add(String.format("\"latestUpdate\":%d\n", zobonAppService.latestUpdate().getTime()));
 		sjFile.add(String.format("\"deletedCategories\":\n%s", unpublishElements(categoryService.findUnpublishedCategories(timePoint))));
 		sjFile.add(String.format("\"deletedEntities\":\n%s", unpublishElements(zobonAppService.findUnpublishedItems(timePoint))));
+		sjFile.add(String.format("\"deletedOffers\":\n%s", populateOffers(zobonAppService.findUnpublishedOffers(timePoint))));
 		return sjFile.toString();
 	}
 	private String populateOffers(Iterable<Offer> offers)
@@ -155,12 +204,12 @@ public class UpdateController
 			offerFields.add(String.format("\"id\":\"%s\"", offer.getId()));
 			offerFields.add(String.format("\"enName\":\"%s\"", offer.getEnName()));
 			offerFields.add(String.format("\"arName\":\"%s\"", offer.getArName()));
-			offerFields.add(String.format("\"startDate\":\"%s\"", sdf.format(offer.getStartDate())));
-			offerFields.add(String.format("\"endDate\":\"%s\"", sdf.format(offer.getEndDate())));
+			offerFields.add(String.format("\"startDate\":%s",offer.getStartDate().getTime()));
+			offerFields.add(String.format("\"endDate\":%d", offer.getEndDate().getTime()));
 			offerFields.add(String.format("\"pages\":%d", offer.getPages()));
 			offerFields.add(String.format("\"rank\":\"%d\"", offer.getRank()));
 			offerFields.add(String.format("\"keywords\":\"%S\"", offer.getKeywords()));
-			offerFields.add(String.format("\"entityId\":\"%s\"", offer.getItem().getId()));
+			offerFields.add(String.format("\"entityId\":\"%s\"", offer.getEntity().getId()));
 			StringJoiner icRecord = new StringJoiner(",", "[", "]");
 			for (Category category : offer.getCategories())
 			{
@@ -181,7 +230,7 @@ public class UpdateController
 		{
 			StringJoiner contactFields = new StringJoiner(",\n", "{", "}");
 			contactFields.add(String.format("\"id\":\"%s\"", contact.getId()));
-			contactFields.add(String.format("\"itemId\":\"%s\"", contact.getItem().getId()));
+			contactFields.add(String.format("\"entityId\":\"%s\"", contact.getEntity().getId()));
 			contactFields.add(String.format("\"uri\":\"%s\"", contact.getUri()));
 			contactFields.add(String.format("\"arName\":\"%s\"", contact.getArName()));
 			contactFields.add(String.format("\"enName\":\"%s\"", contact.getEnName()));
@@ -200,11 +249,11 @@ public class UpdateController
 		}
 		return elementRecords.toString();
 	}
-	private String populateItems(Iterable<Item> items, List<Contact> detailedContacts,  List<Contact> basicContacts)
+	private String populateItems(Iterable<BusinessEntity> items, List<Contact> detailedContacts,  List<Contact> basicContacts)
 	{
 		System.out.println("No. Of items:"+items.spliterator().getExactSizeIfKnown());
 		StringJoiner itemRecords = new StringJoiner(",\n", "[", "]");
-		for (Item item : items)
+		for (BusinessEntity item : items)
 		{
 
 			if (item.getContacts().size() > 0)

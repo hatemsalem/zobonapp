@@ -12,7 +12,7 @@ public class Contact extends AbstractEntity<Contact>
 	private String arName;
 	private String enName;
 	@ManyToOne(optional=false)
-	private Item item;
+	private BusinessEntity entity;
 	@NotNull
 	private String uri;
 	private int rank;
@@ -46,14 +46,14 @@ public class Contact extends AbstractEntity<Contact>
 		this.enName = enName;
 	}
 
-	public Item getItem()
+	public BusinessEntity getEntity()
 	{
-		return item;
+		return entity;
 	}
 
-	public void setItem(Item item)
+	public void setEntity(BusinessEntity entity)
 	{
-		this.item = item;
+		this.entity = entity;
 	}
 
 	public String getUri()
@@ -110,7 +110,7 @@ public class Contact extends AbstractEntity<Contact>
 	@Override
 	public String toString()
 	{
-		return "Contact [arName=" + arName + ", enName=" + enName + ", item=" + item.getId() + ", uri=" + uri + ", rank=" + rank + ", category=" + category
+		return "Contact [arName=" + arName + ", enName=" + enName + ", item=" + entity.getId() + ", uri=" + uri + ", rank=" + rank + ", category=" + category
 				+ ", status=" + status + "]";
 	}
 	

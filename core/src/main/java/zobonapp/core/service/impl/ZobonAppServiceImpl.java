@@ -1,7 +1,6 @@
 package zobonapp.core.service.impl;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -12,8 +11,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import zobonapp.core.domain.BusinessEntity;
 import zobonapp.core.domain.Category;
-import zobonapp.core.domain.Item;
 import zobonapp.core.domain.Offer;
 import zobonapp.core.domain.Status;
 import zobonapp.core.repository.CategoryRepository;
@@ -32,36 +31,36 @@ public class ZobonAppServiceImpl implements ZobonAppService
 	@Autowired
 	private OfferRepository offerRepository;
 	@Override
-	public Item save(Item item, List<String> categories)
+	public BusinessEntity save(BusinessEntity item, List<String> categories)
 	{
 		for(String category:categories)
 		{
 			Iterator< Category> entities=categoryRepository.findByEnName(category).iterator();
 			if(entities!=null&&entities.hasNext())
 				item.getCategories().add(entities.next());
-			else System.out.println("Category Not Found:"+category );
+			else System.out.println("Category Not Found:"+category+ " for item :"+item.getEnName() );
 		}
 		// TODO Auto-generated method stub
 		return itemRepository.save(item);
 	}
 	@Override
-	public Item save(Item item)
+	public BusinessEntity save(BusinessEntity item)
 	{
 		// TODO Auto-generated method stub
 		return itemRepository.save(item);
 	}
 	@Override
-	public Item find(UUID id)
+	public BusinessEntity find(UUID id)
 	{
 		return itemRepository.findOne(id);
 	}
 	@Override
-	public Item findByArName(String arName)
+	public BusinessEntity findByArName(String arName)
 	{
 		return itemRepository.findByArName(arName);
 	}
 	@Override
-	public Item findByEnName(String enName)
+	public BusinessEntity findByEnName(String enName)
 	{
 		return itemRepository.findByEnName(enName);
 	}
@@ -73,24 +72,24 @@ public class ZobonAppServiceImpl implements ZobonAppService
 		return itemRepository.latestUpdate();
 	}
 	@Override
-	public Iterable<Item> findNewItems(Date lastUpdate)
+	public Iterable<BusinessEntity> findNewItems(Date lastUpdate)
 	{
 		return itemRepository.findNewItems(Status.PUBLISHED, lastUpdate);
 	}
 	@Override
-	public Iterable<Item> findUpdatedItems(Date lastUpdate)
+	public Iterable<BusinessEntity> findUpdatedItems(Date lastUpdate)
 	{
 		return itemRepository.findUpdatedItems(Status.PUBLISHED, lastUpdate);
 	}
 	@Override
-	public Iterable<Item> findUnpublishedItems(Date lastUpdate)
+	public Iterable<BusinessEntity> findUnpublishedItems(Date lastUpdate)
 	{
 		return itemRepository.findUnpubishedItems(lastUpdate);
 	}
 	@Override
 	public void test()
 	{
-		Item item=itemRepository.findOne(UUID.fromString("98abe435-844a-4864-b20b-4994e1f76004"));
+		BusinessEntity item=itemRepository.findOne(UUID.fromString("98abe435-844a-4864-b20b-4994e1f76004"));
 		System.out.println(item.getId());
 		System.out.println(item.getCategories().size());
 		
@@ -103,7 +102,7 @@ public class ZobonAppServiceImpl implements ZobonAppService
 	@Override
 	public int updateItemRank(UUID id, int rank)
 	{
-		return itemRepository.updateRank(id, rank);
+		return itemRepository.updateRank(id, rank,new Date());
 	}
 	@Override
 	public Iterable<Offer> findNewOffers(Date lastUpdate)
@@ -118,7 +117,7 @@ public class ZobonAppServiceImpl implements ZobonAppService
 			Iterator< Category> entities=categoryRepository.findByEnName(category).iterator();
 			if(entities!=null&&entities.hasNext())
 				offer.getCategories().add(entities.next());
-			else System.out.println("Category Not Found:"+category );
+			else System.out.println("Category Not Found:"+category +" for offer:"+offer.getEnName()+" of item:"+offer.getEntity().getEnName() );
 		}
 		// TODO Auto-generated method stub
 		return offerRepository.save(offer);
@@ -127,6 +126,16 @@ public class ZobonAppServiceImpl implements ZobonAppService
 	public Offer save(Offer offer)
 	{
 		return offerRepository.save(offer);
+	}
+	@Override
+	public Iterable<Offer> findUpdatedOffers(Date lastUpdate)
+	{
+		return offerRepository.findUpdatedOffers(Status.PUBLISHED, lastUpdate);
+	}
+	@Override
+	public Iterable<Offer> findUnpublishedOffers(Date lastUpdate)
+	{
+		return offerRepository.findUnpubishedOffers(lastUpdate);
 	}
 
 }

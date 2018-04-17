@@ -1,5 +1,7 @@
 package zobonapp.core.setup;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,13 +9,14 @@ import java.util.UUID;
 import java.util.Vector;
 
 import org.apache.camel.Exchange;
+import org.apache.http.util.TextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import zobonapp.core.domain.Category;
 import zobonapp.core.domain.Contact;
-import zobonapp.core.domain.Item;
+import zobonapp.core.domain.BusinessEntity;
 import zobonapp.core.domain.Status;
 import zobonapp.core.service.CategoryService;
 import zobonapp.core.service.ZobonAppService;
@@ -34,15 +37,37 @@ public class Inserter
 		{
 			String arName=anItem.get("arName").toString();
 			String enName=anItem.get("enName").toString();
-			Item item=itemService.findByEnName(enName);
+			String web= anItem.get("web").toString();
+			String facebook=anItem.get("facebook").toString();
+			try
+			{
+				web=URLDecoder.decode(web, "UTF-8");
+			} catch (UnsupportedEncodingException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			try
+			{
+				facebook=URLDecoder.decode(facebook, "UTF-8");
+			} catch (UnsupportedEncodingException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			BusinessEntity item=itemService.findByEnName(enName);
 			if(item==null)
 				item=itemService.findByArName(arName);
 			if(item==null)
 			{
-				item=new Item();
+				item=new BusinessEntity();
 				item.setArName(arName);
 				item.setEnName(enName);
+				item.setWeb(web);
+				item.setFacebook(facebook);
 			}
+			
 
 			Contact mainContact=null;
 			Contact firstContact=null;
@@ -64,17 +89,27 @@ public class Inserter
 				contact.setArName(aContact.get("arName").toString());
 				contact.setEnName(aContact.get("enName").toString());
 				contact.setProfileUri(item.getEnName()+"/"+aContact.get("profileId"));
-				contact.setItem(item);
-				if(mainContact==null&&(contact.getEnName().toLowerCase().contains("customer service")||contact.getEnName().toLowerCase().contains("home delivery")))
+				contact.setEntity(item);
+				if(mainContact==null&&(contact.getEnName().toLowerCase().contains("customer service")||contact.getEnName().toLowerCase().contains("home delivery")||contact.getEnName().toLowerCase().contains("hotline")))
 				{
 					mainContact=contact;
-					mainContact.setUri("tel:"+anItem.get("hotlone"));
+					mainContact.setUri("tel:"+anItem.get("hotline"));
 					mainContact.setCategory(hotlineCategory);
 					item.getContacts().add(0, mainContact);
 				}
 				else
 				{
-					contact.setUri("geo:NA");
+					String lat=aContact.get("lat").toString();
+					String lng=aContact.get("lng").toString();
+					if(TextUtils.isEmpty(lat)||TextUtils.isEmpty(lng))
+					{
+						contact.setUri("geo:");
+					}
+					else
+					{
+						contact.setUri("geo:"+lat+","+lng);
+					}
+							
 					contact.setCategory(addressCategory);
 					item.getContacts().add(contact);
 				}
@@ -86,7 +121,22 @@ public class Inserter
 			{
 				if(contacts.size()==1)
 				{
-					firstContact.setUri("tel:"+anItem.get("hotlone"));
+					if(firstContact.getUri().startsWith("geo:")&&firstContact.getUri().length()>6)
+					{
+						Contact mapContact=new Contact();
+						mapContact.setStatus(Status.PUBLISHED);
+						mapContact.setArName(firstContact.getArName());
+						mapContact.setEnName(firstContact.getEnName());
+						
+						mapContact.setUri(firstContact.getUri());
+						mapContact.setCategory(firstContact.getCategory());
+						mapContact.setEntity(firstContact.getEntity());
+						item.getContacts().add(mapContact);
+						firstContact.setEnName("Customer Service");
+						firstContact.setArName("خدمة العملاء");
+						
+					}
+					firstContact.setUri("tel:"+anItem.get("hotline"));
 					firstContact.setCategory(hotlineCategory);
 				}
 				else
@@ -95,9 +145,9 @@ public class Inserter
 					mainContact.setStatus(Status.PUBLISHED);
 					mainContact.setArName("الخط الساخن");
 					mainContact.setEnName("Hotline");
-					mainContact.setUri("tel:"+anItem.get("hotlone"));
+					mainContact.setUri("tel:"+anItem.get("hotline"));
 					mainContact.setCategory(hotlineCategory);
-					mainContact.setItem(item);
+					mainContact.setEntity(item);
 					item.getContacts().add(0,mainContact);
 				}
 			}
@@ -120,16 +170,36 @@ public class Inserter
 		{
 			String arName=anItem.get("arName").toString();
 			String enName=anItem.get("enName").toString();
-			Item item=itemService.findByEnName(enName);
+			String web=anItem.get("web").toString();
+			String facebook=anItem.get("facebook").toString();
+			BusinessEntity item=itemService.findByEnName(enName);
 			if(item==null)
 				item=itemService.findByArName(arName);
 			if(item==null)
 			{
-				item=new Item();
+				item=new BusinessEntity();
 				
+			}
+			try
+			{
+				web=URLDecoder.decode(web, "UTF-8");
+			} catch (UnsupportedEncodingException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			try
+			{
+				facebook=URLDecoder.decode(facebook, "UTF-8");
+			} catch (UnsupportedEncodingException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			item.setArName(arName);
 			item.setEnName(enName);
+			item.setWeb(web);
+			item.setFacebook(facebook);
 
 			Contact mainContact=null;
 			Contact firstContact=null;
@@ -151,11 +221,11 @@ public class Inserter
 				contact.setArName(aContact.get("arName").toString());
 				contact.setEnName(aContact.get("enName").toString());
 				contact.setProfileUri(item.getEnName()+"/"+aContact.get("profileId"));
-				contact.setItem(item);
+				contact.setEntity(item);
 				if(mainContact==null&&(contact.getEnName().toLowerCase().contains("customer service")||contact.getEnName().toLowerCase().contains("home delivery")))
 				{
 					mainContact=contact;
-					mainContact.setUri("tel:"+anItem.get("hotlone"));
+					mainContact.setUri("tel:"+anItem.get("hotline"));
 					mainContact.setCategory(hotlineCategory);
 					item.getContacts().add(0, mainContact);
 				}
@@ -166,7 +236,7 @@ public class Inserter
 			{
 				if(contacts.size()==1)
 				{
-					firstContact.setUri("tel:"+anItem.get("hotlone"));
+					firstContact.setUri("tel:"+anItem.get("hotline"));
 					firstContact.setCategory(hotlineCategory);
 					item.getContacts().add(0,firstContact);
 				}
@@ -176,9 +246,9 @@ public class Inserter
 					mainContact.setStatus(Status.PUBLISHED);
 					mainContact.setArName("الخط الساخن");
 					mainContact.setEnName("Hotline");
-					mainContact.setUri("tel:"+anItem.get("hotlone"));
+					mainContact.setUri("tel:"+anItem.get("hotline"));
 					mainContact.setCategory(hotlineCategory);
-					mainContact.setItem(item);
+					mainContact.setEntity(item);
 					item.getContacts().add(0,mainContact);
 				}
 			}

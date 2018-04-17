@@ -26,7 +26,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import zobonapp.core.domain.Item;
+import zobonapp.core.domain.BusinessEntity;
 import zobonapp.core.domain.Offer;
 import zobonapp.core.domain.Status;
 import zobonapp.core.repository.OfferRepository;
@@ -56,7 +56,7 @@ public class YabalashWorker
 		this.entitiesMapper = entitiesMapper;
 	}
 	
-	private void syncOffer(String src,String srcId, String arName,String enName, int pages,Date startDate,Date endDate,Item item)
+	private void syncOffer(String src,String srcId, String arName,String enName, int pages,Date startDate,Date endDate,BusinessEntity item)
 	{
 		Offer offer = offerRepository.findBySrcAndSrcId(src, srcId);
 		if (offer == null)
@@ -68,7 +68,7 @@ public class YabalashWorker
 			offer.setSrcId(srcId);
 			offer.setPages(-1);
 			offer.setStatus(Status.DRAFT);
-			offer.setItem(item);
+			offer.setEntity(item);
 			offer.setStartDate(startDate);
 			offer.setEndDate(endDate);
 			offer=offerRepository.save(offer);
@@ -148,7 +148,7 @@ public class YabalashWorker
 				
 				if(entityEnName!=null)
 				{
-					Item item=zobonAppService.findByEnName(entityEnName);
+					BusinessEntity item=zobonAppService.findByEnName(entityEnName);
 					if(item!=null)
 					{
 						LocalDate startDate=LocalDate.parse(fields[6], DateTimeFormatter.ofPattern("yyyy-MM-dd"));

@@ -1,5 +1,6 @@
 package zobonapp.core.domain;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
 
@@ -27,6 +28,7 @@ public abstract class AbstractEntity<T extends AbstractEntity<?>>
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(nullable=false)
 	private Date created;
+	
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(nullable=false)

@@ -29,7 +29,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import zobonapp.core.domain.Item;
+import zobonapp.core.domain.BusinessEntity;
 import zobonapp.core.domain.Offer;
 import zobonapp.core.domain.Status;
 import zobonapp.core.repository.OfferRepository;
@@ -59,7 +59,7 @@ public class OrodShopWorker
 		this.entitiesMapper = entitiesMapper;
 	}
 	
-	private void syncOffer(String src,String srcId, String arName,String enName, Vector<String> pages,Date startDate,Date endDate,Item item,String categories)
+	private void syncOffer(String src,String srcId, String arName,String enName, Vector<String> pages,Date startDate,Date endDate,BusinessEntity item,String categories)
 	{
 		Offer offer = offerRepository.findBySrcAndSrcId(src, srcId);
 		
@@ -72,7 +72,7 @@ public class OrodShopWorker
 			offer.setSrcId(srcId);
 			offer.setPages(-1);
 			offer.setStatus(Status.DRAFT);
-			offer.setItem(item);
+			offer.setEntity(item);
 			offer.setStartDate(startDate);
 			offer.setEndDate(endDate);
 			
@@ -184,7 +184,7 @@ public class OrodShopWorker
 			String categories=entitiesMapper.get(companyId+".categories");
 			if(entityEnName!=null)
 			{
-				Item item=zobonAppService.findByEnName(entityEnName);
+				BusinessEntity item=zobonAppService.findByEnName(entityEnName);
 				if(item!=null)
 				{
 					syncOffer(SRC, srcId, arName, enName, pages, startDate, endDate, item,categories);
