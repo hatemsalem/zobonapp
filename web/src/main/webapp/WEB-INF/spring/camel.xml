@@ -6,10 +6,20 @@
 	<import resource="datasource-tx-jpa.xml" />
 	<import resource="offers-workers.xml"/>
 	<bean id="inserter" class="zobonapp.core.setup.Inserter" />
-	<camelContext xmlns="http://camel.apache.org/schema/spring">
+	<camelContext xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="dlc">
+		<errorHandler id="dlc" type="DeadLetterChannel" deadLetterUri="direct:DLC">
+			<redeliveryPolicy maximumRedeliveries="0" retryAttemptedLogLevel="DEBUG"/>
+		</errorHandler>
 		<dataFormats>
 			<json id="abc" library="Jackson" />
 		</dataFormats>
+		<route id="logging">
+			<from uri="direct:DLC"/>
+			<setBody >
+				<simple>${date:now:yyyyMMdd-HH:mm:ss}::: Record: ${body}, Exception: ${exception.message},\nStackTrace:\n${exception.stacktrace}\n===================\n</simple>
+			</setBody>
+			<to uri="file://c://zadata/logs?fileName=dlc.txt&amp;fileExist=Append"/>
+		</route>
 		<route>
 			<from uri="file://c://zadata/init/res/?recursive=true&amp;delete=true&amp;initialDelay=120000" />
 			<to uri="bean:inserter?method=renameLogoFile"></to>
