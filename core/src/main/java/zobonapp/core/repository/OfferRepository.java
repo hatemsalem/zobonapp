@@ -19,6 +19,7 @@ public interface OfferRepository extends CrudRepository<Offer, UUID>
 	@Query("select o from Offer o where o.status=?1 and o.created>?2")
 	Iterable<Offer> findNewOffers(Status status,Date lastUpdate);
 
+	@EntityGraph(value="offer.categories" ,type=EntityGraphType.LOAD)
 	@Query("select distinct o from Offer o where o.status=?1 and o.updated>?2 and o.created<=?2")
 	Iterable<Offer> findUpdatedOffers(Status published, Date lastUpdate);
 
