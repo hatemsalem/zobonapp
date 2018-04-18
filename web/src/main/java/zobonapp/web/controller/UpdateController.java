@@ -40,7 +40,7 @@ public class UpdateController
 	@Autowired
 	private ZobonAppService zobonAppService;
 
-	@RequestMapping(value = "/updates/ver-{version}/{lastUpdated}", method = RequestMethod.POST)
+	@RequestMapping(value = "/updates/ver-{version}/{lastUpdated}", method = { RequestMethod.POST,RequestMethod.GET})
 	public void getUpdateFiles(HttpServletResponse response, @PathVariable int version,@PathVariable long lastUpdated) throws IOException
 	{
 		response.setContentType("zip/application;charset=UTF-8");
