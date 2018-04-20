@@ -6,14 +6,14 @@
 
 	
 	<bean id="oroodWorker" class="zobonapp.core.setup.OrodShopWorker">
-		<property name="entitiesMapper">
+		<constructor-arg>
 			<util:properties location="file:/C:/zadata/3orod.properties" />
-		</property>
+		</constructor-arg>
 	</bean>
 	<bean id="yabalashWorker" class="zobonapp.core.setup.YabalashWorker">
-		<property name="entitiesMapper">
+		<constructor-arg>
 			<util:properties location="file:/C:/zadata/mobappsbaker.properties" />
-		</property>
+		</constructor-arg>
 	</bean>
 	
 </beans>

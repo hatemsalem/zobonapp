@@ -191,7 +191,7 @@ public class UpdateController
 		sjFile.add(String.format("\"latestUpdate\":%d\n", zobonAppService.latestUpdate().getTime()));
 		sjFile.add(String.format("\"deletedCategories\":\n%s", unpublishElements(categoryService.findUnpublishedCategories(timePoint))));
 		sjFile.add(String.format("\"deletedEntities\":\n%s", unpublishElements(zobonAppService.findUnpublishedItems(timePoint))));
-		sjFile.add(String.format("\"deletedOffers\":\n%s", populateOffers(zobonAppService.findUnpublishedOffers(timePoint))));
+		sjFile.add(String.format("\"deletedOffers\":\n%s", unpublishElements(zobonAppService.findUnpublishedOffers(timePoint))));
 		return sjFile.toString();
 	}
 	private String populateOffers(Iterable<Offer> offers)

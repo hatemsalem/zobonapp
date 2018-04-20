@@ -9,10 +9,12 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,89 +34,76 @@ import zobonapp.core.domain.Status;
 import zobonapp.core.repository.OfferRepository;
 import zobonapp.core.service.ZobonAppService;
 
-public class YabalashWorker
+public class YabalashWorker extends OffersScraper
 {
-	private HashMap<String, String> entitiesMapper;
+
+	
 
 	private static final String SRC = YabalashWorker.class.getSimpleName();
 	
-	private String assetsPath="C:\\zadata\\resources\\offers";
-
-	@Autowired
-	private OfferRepository offerRepository;
-
-	@Autowired
-	private ZobonAppService zobonAppService;
-	
-	public HashMap<String, String> getEntitiesMapper()
+	public YabalashWorker(HashMap<String, String> configuration)
 	{
-		return entitiesMapper;
-	}
-
-	public void setEntitiesMapper(HashMap<String, String> entitiesMapper)
-	{
-		this.entitiesMapper = entitiesMapper;
+		super(configuration);
 	}
 	
-	private void syncOffer(String src,String srcId, String arName,String enName, int pages,Date startDate,Date endDate,BusinessEntity item)
-	{
-		Offer offer = offerRepository.findBySrcAndSrcId(src, srcId);
-		if (offer == null)
-		{
-			offer = new Offer();
-			offer.setArName(arName);
-			offer.setEnName(enName);
-			offer.setSrc(src);
-			offer.setSrcId(srcId);
-			offer.setPages(-1);
-			offer.setStatus(Status.DRAFT);
-			offer.setEntity(item);
-			offer.setStartDate(startDate);
-			offer.setEndDate(endDate);
-			offer=offerRepository.save(offer);
-			
-			File file = new File(String.format("%s\\%s", assetsPath,offer.getId()));
-			file.mkdirs();
-		}
-		if(offer.getPages()<0)
-		{
-			String srcPath=String.format("http://mobappsbaker.com/catalogs/thwr/thumbs/%s.jpg", srcId);
-			String destPath=String.format("%s\\%s\\thumbnail.jpg", assetsPath,offer.getId());
-			if(download(srcPath, destPath))
-			{
-				offer.setPages(0);
-				
-			}
-		}
-		if (offer.getStatus() == Status.DRAFT&&offer.getPages()>=0)
-		{
-			for (int i = offer.getPages(); i < pages; i++)
-			{
-				
-				String srcPath=String.format("http://mobappsbaker.com/catalogs/thwr/offers/%s/%d.jpg", srcId,i+1);
-				String destPath=String.format("%s\\%s\\%03d.jpg", assetsPath,offer.getId(),i+1);
-				if(download(srcPath, destPath))
-				{
-					offer.setPages(i+1);
-					
-				}
-				else
-					break;
-			}
-		}
-		if (offer.getStatus()!=Status.PUBLISHED&&pages == offer.getPages())
-		{
-			offer.setStatus(Status.PUBLISHED);
-		}
-		offerRepository.save(offer);
-	}
+//	private void syncOffer(String src,String srcId, String arName,String enName, int pages,Date startDate,Date endDate,BusinessEntity item)
+//	{
+//		Offer offer = offerRepository.findBySrcAndSrcId(src, srcId);
+//		if (offer == null)
+//		{
+//			offer = new Offer();
+//			offer.setArName(arName);
+//			offer.setEnName(enName);
+//			offer.setSrc(src);
+//			offer.setSrcId(srcId);
+//			offer.setPages(-1);
+//			offer.setStatus(Status.DRAFT);
+//			offer.setEntity(item);
+//			offer.setStartDate(startDate);
+//			offer.setEndDate(endDate);
+//			offer=offerRepository.save(offer);
+//			
+//			File file = new File(String.format("%s\\%s", assetsPath,offer.getId()));
+//			file.mkdirs();
+//		}
+//		if(offer.getPages()<0)
+//		{
+//			String srcPath=String.format("http://mobappsbaker.com/catalogs/thwr/thumbs/%s.jpg", srcId);
+//			String destPath=String.format("%s\\%s\\thumbnail.jpg", assetsPath,offer.getId());
+//			if(download(srcPath, destPath))
+//			{
+//				offer.setPages(0);
+//				
+//			}
+//		}
+//		if (offer.getStatus() == Status.DRAFT&&offer.getPages()>=0)
+//		{
+//			for (int i = offer.getPages(); i < pages; i++)
+//			{
+//				
+//				String srcPath=String.format("http://mobappsbaker.com/catalogs/thwr/offers/%s/%d.jpg", srcId,i+1);
+//				String destPath=String.format("%s\\%s\\%03d.jpg", assetsPath,offer.getId(),i+1);
+//				if(download(srcPath, destPath))
+//				{
+//					offer.setPages(i+1);
+//					
+//				}
+//				else
+//					break;
+//			}
+//		}
+//		if (offer.getStatus()!=Status.PUBLISHED&&pages == offer.getPages())
+//		{
+//			offer.setStatus(Status.PUBLISHED);
+//		}
+//		offerRepository.save(offer);
+//	}
 
 	public void run()
 	{
-		String offersUrl = "http://mobappsbaker.com/catalogs/andr/main_offers.php?t=long";
 		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
 		HttpClient client = HttpClientBuilder.create().build();
-		HttpGet request = new HttpGet(offersUrl);
+		HttpGet request = new HttpGet(getOffersUrl());
 		String content = null;
 		try
 		{
@@ -139,25 +128,29 @@ public class YabalashWorker
 				String record = content.substring(matcher.start(), matcher.end());
 				System.out.println("Record:" + record);
 				String fields[] = record.split("#");
-				String srcId = fields[0];
+				String srcOfferId = fields[0];
 				String arName = fields[5];
 				String companyId=fields[1];
-				int pages = Integer.valueOf(fields[3]);
-				String entityEnName=entitiesMapper.get(companyId+".id");
-				
-				
-				if(entityEnName!=null)
+				List<String> pages=new Vector<>();
+				for(int i=0;i<Integer.valueOf(fields[3]);i++)
 				{
-					BusinessEntity item=zobonAppService.findByEnName(entityEnName);
-					if(item!=null)
-					{
-						LocalDate startDate=LocalDate.parse(fields[6], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-						LocalDate endDate=startDate.plusDays(Integer.valueOf(entitiesMapper.get(companyId+".duration")));					
-						syncOffer(SRC, srcId, arName,arName, pages,
-								Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()),
-								Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant()),item);
-					}
+					pages.add(String.format("offers/%s/%d.jpg",srcOfferId,i+1));
 				}
+				String entityEnName=getEntityEnName(companyId);
+				LocalDate startDate=LocalDate.now();
+				try
+				{
+						LocalDate.parse(fields[6], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+				}
+				catch(DateTimeParseException dtpe)
+				{
+					//TODO: no thing
+				}
+				LocalDate endDate=startDate.plusDays(Integer.valueOf(getDefaultDuration(companyId)));
+				String thumUri=String.format("thumbs/%s.jpg", srcOfferId);
+				syncOffer(SRC, srcOfferId, companyId, arName, arName, pages,thumUri,
+						Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()), 
+						Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
 				
 				
 			}
@@ -166,49 +159,5 @@ public class YabalashWorker
 	}
 
 	
-	public static boolean download(String src, String dest)
-	{
-		boolean result=false;
-		try
-		{
-			CloseableHttpClient client = HttpClientBuilder.create().build();
-			HttpGet request = new HttpGet(src);
-
-			HttpResponse response = client.execute(request);
-			HttpEntity entity = response.getEntity();
-
-			int responseCode = response.getStatusLine().getStatusCode();
-
-			System.out.println("Request Url: " + request.getURI());
-			System.out.println("Response Code: " + responseCode);
-
-			InputStream is = entity.getContent();
-
-			FileOutputStream fos = new FileOutputStream(new File(dest));
-
-			int inByte;
-			while ((inByte = is.read()) != -1)
-			{
-				fos.write(inByte);
-			}
-
-			is.close();
-			fos.close();
-
-			client.close();
-			System.out.println("File Download Completed!!!");
-			return true;
-		} catch (ClientProtocolException e)
-		{
-			e.printStackTrace();
-		} catch (UnsupportedOperationException e)
-		{
-			e.printStackTrace();
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		return result;
-	}
-
+	
 }

@@ -1,6 +1,8 @@
 package zobonapp.core.service.impl;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -137,5 +139,11 @@ public class ZobonAppServiceImpl implements ZobonAppService
 	{
 		return offerRepository.findUnpubishedOffers(lastUpdate);
 	}
-
+	@Override
+	public int offerRetrofit()
+	{
+		Date today=Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+		return offerRepository.retrofit(new Date(),Status.REVIEWED,Status.PUBLISHED, today);
+	}
+	
 }

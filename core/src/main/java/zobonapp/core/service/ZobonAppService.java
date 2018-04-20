@@ -27,5 +27,5 @@ public interface ZobonAppService
 	List<UUID> findItemsIdsforHotline(String hotline);
 	int updateItemRank(UUID id,int rank);
 	void test();
-
+	int offerRetrofit();
 }

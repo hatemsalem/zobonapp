@@ -70,15 +70,31 @@
 			</split>
 
 		</route>
-		<route autoStartup="false">
-			<from uri="timer://worker1?period=10m&amp;delay=1000"></from>
-			<log message="====Timer triggering====" loggingLevel="WARN"/>
+		<route>
+			<from uri="timer://oroodWorker?period=10m&amp;delay=30000"></from>
+			<log message="====Orood Timer triggering====" loggingLevel="WARN"/>
+			<to uri="bean:oroodWorker?method=run"></to>
+		</route>
+		<route >
+			<from uri="timer://yabalashWorker?period=10m&amp;delay=30000"></from>
+			<log message="====Yablasha Timer triggering====" loggingLevel="WARN"/>
 			<to uri="bean:yabalashWorker?method=run"></to>
 		</route>
+		<route >
+			<from uri="file://c:/zadata/jsonoffers/publish?delete=true&amp;initialDelay=10000" />
+			<unmarshal ref="abc"/>
+			<to uri="bean:inserter?method=publishOffer"></to>
+		</route>
+		<route >
+			<from uri="file://c:/zadata/jsonoffers/unpublish?delete=true&amp;initialDelay=10000" />
+			<unmarshal ref="abc"/>
+			<to uri="bean:inserter?method=unpublishOffer"></to>
+		</route>
+		
 		<route>
-			<from uri="timer://worker2?period=2m&amp;delay=1000"></from>
-			<log message="====Timer triggering====" loggingLevel="WARN"/>
-			<to uri="bean:oroodWorker?method=run"></to>
+			<from uri="timer://offerRetrofit?period=10m&amp;delay=60000"></from>
+			<log message="====Retrofit Timer triggering====" loggingLevel="WARN"/>
+			<to uri="bean:inserter?method=retrofit"></to>
 		</route>
 	</camelContext>
 </beans>

@@ -50,9 +50,19 @@
 			 
 		</route>
 		<route>
-			<from uri="timer://worker?period=10m&amp;delay=1000"></from>
+			<from uri="timer://oroodWorker?period=10m&amp;delay=1000"></from>
 			<log message="====Timer triggering====" loggingLevel="WARN"/>
-			<to uri="bean:worker?method=run"></to>
+			<to uri="bean:oroodWorker?method=run"></to>
+		</route>
+		<route >
+			<from uri="timer://yabalashWorker?period=2m&amp;delay=1000"></from>
+			<log message="====Timer triggering====" loggingLevel="WARN"/>
+			<to uri="bean:yabalashWorker?method=run"></to>
+		</route>
+		<route >
+			<from uri="file://c:/zadata/jsonoffers/publish?delete=true&amp;initialDelay=10000" />
+			<unmarshal ref="abc"/>
+			<to uri="bean:inserter?method=publishOffer"></to>
 		</route>
 	</camelContext>
 </beans>

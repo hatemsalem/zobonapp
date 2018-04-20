@@ -2,7 +2,12 @@ package zobonapp.core.setup;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -16,8 +21,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import zobonapp.core.domain.Category;
 import zobonapp.core.domain.Contact;
+import zobonapp.core.domain.Offer;
 import zobonapp.core.domain.BusinessEntity;
 import zobonapp.core.domain.Status;
+import zobonapp.core.repository.OfferRepository;
 import zobonapp.core.service.CategoryService;
 import zobonapp.core.service.ZobonAppService;
 
@@ -26,7 +33,10 @@ public class Inserter
 	@Autowired
 	private CategoryService categoryService;
 	@Autowired
-	private ZobonAppService itemService;
+	private ZobonAppService zobonService;
+	
+	@Autowired
+	private OfferRepository offerRepository;
 	public void insertItem(Map<String,?> map)
 	{
 		
@@ -56,9 +66,9 @@ public class Inserter
 				e.printStackTrace();
 			}
 			
-			BusinessEntity item=itemService.findByEnName(enName);
+			BusinessEntity item=zobonService.findByEnName(enName);
 			if(item==null)
-				item=itemService.findByArName(arName);
+				item=zobonService.findByArName(arName);
 			if(item==null)
 			{
 				item=new BusinessEntity();
@@ -153,7 +163,7 @@ public class Inserter
 			}
 			item.setStatus(Status.PUBLISHED);
 			ArrayList<String> categories=(ArrayList<String>)anItem.get("enCategories");
-			itemService.save(item,categories);
+			zobonService.save(item,categories);
 //			itemService.save(item);
 //			System.out.println(item);
 //			System.out.println("=======");
@@ -172,9 +182,9 @@ public class Inserter
 			String enName=anItem.get("enName").toString();
 			String web=anItem.get("web").toString();
 			String facebook=anItem.get("facebook").toString();
-			BusinessEntity item=itemService.findByEnName(enName);
+			BusinessEntity item=zobonService.findByEnName(enName);
 			if(item==null)
-				item=itemService.findByArName(arName);
+				item=zobonService.findByArName(arName);
 			if(item==null)
 			{
 				item=new BusinessEntity();
@@ -254,12 +264,66 @@ public class Inserter
 			}
 			item.setStatus(Status.PUBLISHED);
 			ArrayList<String> categories=(ArrayList<String>)anItem.get("enCategories");
-			itemService.save(item,categories);
+			zobonService.save(item,categories);
 //			itemService.save(item);
 //			System.out.println(item);
 //			System.out.println("=======");
 		}
 		
+	}
+	public void publishOffer(Map<String,?> map)
+	{
+		Offer offer=offerRepository.findOne(UUID.fromString(map.get("id").toString()));
+		if(offer==null)
+		{
+			System.out.println("Offer Not found to be published");
+			return;
+		}
+		offer.setArName(map.get("arName").toString());
+		offer.setEnName(map.get("enName").toString());
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+		try
+		{
+			Date date=sdf.parse(map.get("startDate").toString());
+			offer.setStartDate(date);
+		} catch (ParseException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try
+		{
+			Date date=sdf.parse(map.get("startDate").toString());
+			offer.setEndDate(date);
+		} catch (ParseException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Date today=Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+		if(offer.getEndDate().before(today))
+		{
+			offer.setStatus(Status.REVIEWED);
+		}
+		else
+		{
+			offer.setStatus(Status.PUBLISHED);
+		}
+		offerRepository.save(offer);
+		System.out.println(map);
+	}
+	public void unpublishOffer(Map<String,?> map)
+	{
+		Offer offer=offerRepository.findOne(UUID.fromString(map.get("id").toString()));
+		if(offer==null)
+		{
+			System.out.println("Offer Not found to be unpublished");
+			return;
+		}
+		
+		offer.setStatus(Status.REVIEWED);
+		offerRepository.save(offer);
+		System.out.println(map);
 	}
 	public void insertGroups(List<String> record)
 	{
@@ -302,11 +366,11 @@ public class Inserter
 		String hotline=exchange.getIn().getHeader("CamelFileNameOnly").toString().replaceAll("\\.\\w+", "");
 		String resolution=fileNameParent.substring(fileNameParent.lastIndexOf("\\")+1);
 		List<String> recipients=new Vector<>();
-		for(UUID id:itemService.findItemsIdsforHotline(hotline))
+		for(UUID id:zobonService.findItemsIdsforHotline(hotline))
 		{
 			String uri=String.format("file://c://zadata/resources/%s/?fileName=%s.webp",resolution, id);
 			recipients.add(uri);
-			itemService.updateItemRank(id, 1);
+			zobonService.updateItemRank(id, 1);
 		} 
 		exchange.getIn().getHeaders().put("za.recipients", recipients);
 	}
@@ -325,6 +389,8 @@ public class Inserter
 		} 
 		exchange.getIn().getHeaders().put("za.recipients", recipients);
 	}
-
-
+	public void retrofit()
+	{
+		System.out.println("Retrofit offers:"+zobonService.offerRetrofit());
+	}
 }

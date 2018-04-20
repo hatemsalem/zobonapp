@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.repository.CrudRepository;
@@ -25,4 +26,8 @@ public interface OfferRepository extends CrudRepository<Offer, UUID>
 
 	@Query("select distinct o from Offer o where o.status<>zobonapp.core.domain.Status.PUBLISHED and o.updated>?1 and o.created<=?1")
 	Iterable<Offer> findUnpubishedOffers(Date lastUpdate);
+	
+	@Modifying
+	@Query("update Offer o set version=version+1,updated=?1,status=?2 where o.status=?3 and o.endDate<?4 ")
+	int retrofit(Date updated,Status newStatus,Status oldStaus,Date today);
 }
