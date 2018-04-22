@@ -37,8 +37,8 @@ public abstract class OffersScraper
 	private HashMap<String, String> configuration;
 	private String offersUrl;
 	private String sourceAssestsBaseUrl;
-	private String destAssetsPath = "C:\\zadata\\resources\\offers";
-	private String jsonPath="c:\\zadata\\jsonOffers\\";
+	private String destAssetsPath = "C:\\zadata\\work\\resources\\offers";
+	private String jsonPath="c:\\zadata\\work\\Offers\\";
 	private int defaultDuration=14;
 	private Status targetStatus=Status.REVIEWED;
 	private boolean generateJSON=true;

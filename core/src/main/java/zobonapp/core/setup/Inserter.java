@@ -37,7 +37,7 @@ public class Inserter
 	
 	@Autowired
 	private OfferRepository offerRepository;
-	public void insertItem(Map<String,?> map)
+public void insertItem(Map<String,?> map)
 	{
 		
 		Category hotlineCategory=categoryService.findByEnNameAndType("Phone",4001);
@@ -325,7 +325,7 @@ public class Inserter
 		offerRepository.save(offer);
 		System.out.println(map);
 	}
-	public void insertGroups(List<String> record)
+	public void insertCategories(List<String> record)
 	{
 		System.out.println(record);
 		Category category=new Category();
@@ -368,7 +368,7 @@ public class Inserter
 		List<String> recipients=new Vector<>();
 		for(UUID id:zobonService.findItemsIdsforHotline(hotline))
 		{
-			String uri=String.format("file://c://zadata/resources/%s/?fileName=%s.webp",resolution, id);
+			String uri=String.format("file://c://zadata/work/resources/%s/?fileName=%s.webp",resolution, id);
 			recipients.add(uri);
 			zobonService.updateItemRank(id, 1);
 		} 
@@ -383,7 +383,7 @@ public class Inserter
 		List<String> recipients=new Vector<>(); 
 		for(Category category:categoryService.findCategoryByEnName(enGroupName))
 		{
-			String uri=String.format("file://c://zadata/resources/%s/?fileName=%s.webp",resolution, category.getId());
+			String uri=String.format("file://c://zadata/work/resources/%s/?fileName=%s.webp",resolution, category.getId());
 			recipients.add(uri);
 //			itemService.updateItemRank(id, 1);
 		} 

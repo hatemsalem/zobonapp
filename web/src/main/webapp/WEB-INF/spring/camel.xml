@@ -18,10 +18,10 @@
 			<setBody >
 				<simple>${date:now:yyyyMMdd-HH:mm:ss}::: Record: ${body}, Exception: ${exception.message},\nStackTrace:\n${exception.stacktrace}\n===================\n</simple>
 			</setBody>
-			<to uri="file://c://zadata/logs?fileName=dlc.txt&amp;fileExist=Append"/>
+			<to uri="file://c://zadata/work/logs?fileName=dlc.txt&amp;fileExist=Append"/>
 		</route>
 		<route>
-			<from uri="file://c://zadata/init/res/?recursive=true&amp;delete=true&amp;initialDelay=120000" />
+			<from uri="file://c://zadata/work/logos/item/?recursive=true&amp;delete=true&amp;initialDelay=120000" />
 			<to uri="bean:inserter?method=renameLogoFile"></to>
 			<log message="====Loop====${headers[za.recipients]}\n" loggingLevel="WARN" />
 			<recipientList>
@@ -29,7 +29,7 @@
 			</recipientList>
 		</route>
 		<route>
-			<from uri="file://c://zadata/init/cat_res/?recursive=true&amp;delete=true&amp;initialDelay=10000" />
+			<from uri="file://c://zadata/work/logos/category/?recursive=true&amp;delete=true&amp;initialDelay=10000" />
 			<to uri="bean:inserter?method=renameCatLogoFile"></to>
 			<log message="====Loop====${headers[za.recipients]}\n" loggingLevel="WARN" />
 			<recipientList>
@@ -38,7 +38,7 @@
 		</route>
 
 		<route autoStartup="true">
-			<from uri="file://c:/zadata/init/hotlines/?delete=true&amp;initialDelay=10000" />
+			<from uri="file://c:/zadata/work/hotlines/?delete=true&amp;initialDelay=10000" />
 
 			<log message="Hello ${file:absolute.path}" loggingLevel="WARN" />
 			<unmarshal ref="abc" />
@@ -49,7 +49,7 @@
 		</route>
 
 		<route autoStartup="true">
-			<from uri="file://c:/zadata/init/hotlines/issues/?delete=true&amp;initialDelay=60000" />
+			<from uri="file://c:/zadata/work/hotlines/issues/?delete=true&amp;initialDelay=60000" />
 
 			<log message="Hello ${file:absolute.path}" loggingLevel="WARN" />
 			<unmarshal ref="abc" />
@@ -60,13 +60,13 @@
 		</route>
 
 		<route>
-			<from uri="file://c:/zadata/init/?delete=true&amp;fileName=categories.csv&amp;initialDelay=500" />
+			<from uri="file://c:/zadata/work/categories/?delete=true&amp;initialDelay=500" />
 			<unmarshal>
 				<csv skipFirstLine="true" />
 			</unmarshal>
 			<split>
 				<simple>body</simple>
-				<to uri="bean:inserter?method=insertGroups"></to>
+				<to uri="bean:inserter?method=insertCategories"></to>
 			</split>
 
 		</route>
@@ -81,12 +81,12 @@
 			<to uri="bean:yabalashWorker?method=run"></to>
 		</route>
 		<route >
-			<from uri="file://c:/zadata/jsonoffers/publish?delete=true&amp;initialDelay=10000" />
+			<from uri="file://c:/zadata/work/offers/publish?delete=true&amp;initialDelay=10000" />
 			<unmarshal ref="abc"/>
 			<to uri="bean:inserter?method=publishOffer"></to>
 		</route>
 		<route >
-			<from uri="file://c:/zadata/jsonoffers/unpublish?delete=true&amp;initialDelay=10000" />
+			<from uri="file://c:/zadata/work/offers/unpublish?delete=true&amp;initialDelay=10000" />
 			<unmarshal ref="abc"/>
 			<to uri="bean:inserter?method=unpublishOffer"></to>
 		</route>
