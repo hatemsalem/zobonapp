@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -264,6 +265,26 @@ public class UpdateController
 				itemFields.add(String.format("\"arName\":\"%s\"", item.getArName()));
 				itemFields.add(String.format("\"rank\":\"%s\"", item.getRank()));
 				itemFields.add(String.format("\"contactId\":\"%s\"", item.getContacts().get(0).getId()));
+				String url=item.getWeb();
+				if(!StringUtils.isEmpty(url))
+				{
+					url=url.toLowerCase().trim();
+					if(!(url.startsWith("http://")||url.startsWith("https://")))
+						url="http://"+url;
+					
+					itemFields.add(String.format("\"web\":\"%s\"", url));	
+				}
+				url=item.getFacebook().toLowerCase().trim();
+				if(!StringUtils.isEmpty(url)&&url.contains("facebook"))
+				{
+					if(url.endsWith("/"))
+						url=url.substring(0,url.length()-1);
+					url =url.substring(url.lastIndexOf("/")+1);
+					if(url.lastIndexOf("?")>0)
+						url.substring(0,url.lastIndexOf("?")-1);
+					itemFields.add(String.format("\"fb\":\"%s\"", url));	
+				}
+				
 				StringJoiner icRecord = new StringJoiner(",", "[", "]");
 				for (Category category : item.getCategories())
 				{
