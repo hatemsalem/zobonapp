@@ -37,6 +37,7 @@ public abstract class OffersScraper
 	private HashMap<String, String> configuration;
 	private String offersUrl;
 	private String sourceAssestsBaseUrl;
+	private String jsonFolder;
 	private String destAssetsPath = "C:\\zadata\\work\\resources\\offers";
 	private String jsonPath="c:\\zadata\\work\\Offers\\";
 	private int defaultDuration=14;
@@ -65,6 +66,7 @@ public abstract class OffersScraper
 			targetStatus=Status.DRAFT;
 		}
 		generateJSON=Boolean.parseBoolean(configuration.get("json"));
+		jsonFolder=configuration.get("jsonFolder");
 		
 	}
 	public String getOffersUrl()
@@ -186,7 +188,11 @@ public abstract class OffersScraper
 	}
 	public void generateJsonFile(Offer offer,String entityName)
 	{
-		File jsonFile=new File(String.format("%s\\%s\\%s-%s.json", jsonPath,offer.getSrc(),entityName,offer.getSrcId()));
+		String folder=jsonFolder;
+		if(folder==null)
+			folder=offer.getSrc();
+			
+		File jsonFile=new File(String.format("%s\\%s\\%s-%s.json", jsonPath,folder,entityName,offer.getSrcId()));
 		if(!jsonFile.getParentFile().exists())
 		{
 			if(!jsonFile.getParentFile().mkdirs())

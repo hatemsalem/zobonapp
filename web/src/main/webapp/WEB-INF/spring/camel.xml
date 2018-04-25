@@ -81,6 +81,11 @@
 			<to uri="bean:yabalashWorker?method=run"></to>
 		</route>
 		<route >
+			<from uri="timer://yabalashWorker?period=10m&amp;delay=60000"></from>
+			<log message="====Yablasha Timer triggering====" loggingLevel="WARN"/>
+			<to uri="bean:yabalashWorkerVer4?method=run"></to>
+		</route>
+		<route >
 			<from uri="file://c:/zadata/work/offers/publish?delete=true&amp;initialDelay=10000" />
 			<unmarshal ref="abc"/>
 			<to uri="bean:inserter?method=publishOffer"></to>

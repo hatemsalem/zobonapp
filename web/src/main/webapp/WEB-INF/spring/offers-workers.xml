@@ -15,5 +15,10 @@
 			<util:properties location="file:/C:/zadata/mobappsbaker.properties" />
 		</constructor-arg>
 	</bean>
+	<bean id="yabalashWorkerVer4" class="zobonapp.core.setup.YabalashWorker">
+		<constructor-arg>
+			<util:properties location="file:/C:/zadata/mobappsbakerV4.properties" />
+		</constructor-arg>
+	</bean>
 	
 </beans>
