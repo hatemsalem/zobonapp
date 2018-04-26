@@ -163,7 +163,7 @@ public class Inserter
 		BusinessEntity entity=zobonService.find(UUID.fromString(map.get("id").toString()));
 		if(entity==null)
 		{
-			System.out.println("Category Not found to be published");
+			System.out.println("Entity Not found to be published");
 			return;
 		}
 		

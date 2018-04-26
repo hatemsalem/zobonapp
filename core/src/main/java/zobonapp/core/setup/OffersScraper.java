@@ -208,7 +208,7 @@ public abstract class OffersScraper
 		offerFields.add(String.format("\"arName\":\"%s\"", new String(jsonEncoder.quoteAsString(offer.getArName()))));
 		DateFormat df=new SimpleDateFormat("yyyy-MM-dd");
 		offerFields.add(String.format("\"startDate\":\"%s\"", df.format(offer.getStartDate())));
-		offerFields.add(String.format("\"startDate\":\"%s\"", df.format(offer.getEndDate())));
+		offerFields.add(String.format("\"endDate\":\"%s\"", df.format(offer.getEndDate())));
 		offerFields.add(String.format("\"pages\":%d", offer.getPages()));
 			
 		offerFields.add(String.format("\"assetsPath\":\"%s/%s\"", destAssetsPath.replaceAll("\\\\", "/"),offer.getId()));
