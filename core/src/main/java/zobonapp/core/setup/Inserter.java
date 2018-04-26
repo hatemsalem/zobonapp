@@ -1,7 +1,11 @@
 package zobonapp.core.setup;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -10,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -18,6 +23,8 @@ import org.apache.http.util.TextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+
+import com.fasterxml.jackson.core.io.JsonStringEncoder;
 
 import zobonapp.core.domain.Category;
 import zobonapp.core.domain.Contact;
@@ -37,7 +44,133 @@ public class Inserter
 	
 	@Autowired
 	private OfferRepository offerRepository;
-public void insertItem(Map<String,?> map)
+	public void generateJson(Category category)
+	{
+		String fileName=String.format("C:\\zadata\\work\\categories\\json\\%s-%d.json", category.getEnName(),category.getType());
+		File file=new File(fileName);
+		if(!file.getParentFile().exists())
+		{
+			if(!file.getParentFile().mkdirs())
+			{
+				System.out.println("Can't create the category file for category:"+category.getEnName());
+				return;
+			}
+				
+		}
+		
+		JsonStringEncoder jsonEncoder=JsonStringEncoder.getInstance();
+		StringJoiner offerFields = new StringJoiner(",\n", "{", "}");
+		offerFields.add(String.format("\"id\":\"%s\"", category.getId()));
+		offerFields.add(String.format("\"enName\":\"%s\"", new String(jsonEncoder.quoteAsString(category.getEnName()))));
+		offerFields.add(String.format("\"arName\":\"%s\"", new String(jsonEncoder.quoteAsString(category.getArName()))));
+		offerFields.add(String.format("\"arDesc\":\"%s\"", new String(jsonEncoder.quoteAsString(category.getArDesc()))));
+		offerFields.add(String.format("\"enDesc\":\"%s\"", new String(jsonEncoder.quoteAsString(category.getEnDesc()))));
+		offerFields.add(String.format("\"type\":%d", category.getType()));
+		offerFields.add(String.format("\"rank\":%d", category.getRank()));
+		try
+		{
+			FileWriter output = new FileWriter(file);
+			output.write(offerFields.toString());
+			output.flush();
+			output.close();
+		} catch (IOException e)
+		{
+			System.out.println("Issue while writing json file:"+e.getMessage());
+		}
+		
+	}
+	public void generateJson(BusinessEntity entity)
+	{
+		String fileName=String.format("C:\\zadata\\work\\entities\\json\\%s.json", entity.getEnName());
+		File file=new File(fileName);
+		if(!file.getParentFile().exists())
+		{
+			if(!file.getParentFile().mkdirs())
+			{
+				System.out.println("Can't create the Entity file for category:"+entity.getEnName());
+				return;
+			}
+				
+		}
+		
+		JsonStringEncoder jsonEncoder=JsonStringEncoder.getInstance();
+		StringJoiner offerFields = new StringJoiner(",\n", "{", "}");
+		offerFields.add(String.format("\"id\":\"%s\"", entity.getId()));
+		offerFields.add(String.format("\"enName\":\"%s\"", new String(jsonEncoder.quoteAsString(entity.getEnName()))));
+		offerFields.add(String.format("\"arName\":\"%s\"", new String(jsonEncoder.quoteAsString(entity.getArName()))));
+		offerFields.add(String.format("\"rank\":%d", entity.getRank()));
+		offerFields.add(String.format("\"web\":\"%s\"", entity.getWeb()));
+		offerFields.add(String.format("\"fb\":\"%s\"", entity.getFacebook()));
+		try
+		{
+			FileWriter output = new FileWriter(file);
+			output.write(offerFields.toString());
+			output.flush();
+			output.close();
+		} catch (IOException e)
+		{
+			System.out.println("Issue while writing json file:"+e.getMessage());
+		}
+		
+	}
+	public void publishCategory(Map<String,?> map)
+	{
+		Category category=categoryService.findOne(UUID.fromString(map.get("id").toString()));
+		if(category==null)
+		{
+			System.out.println("Category Not found to be published");
+			return;
+		}
+		category.setArName(map.get("arName").toString());
+		category.setEnName(map.get("enName").toString());
+		category.setType(Integer.parseInt(map.get("type").toString()));
+		category.setRank(Integer.parseInt(map.get("rank").toString()));
+		category.setStatus(Status.PUBLISHED);
+		categoryService.save(category);
+		System.out.println(map);
+	}
+	public void unpublishCategory(Map<String,?> map)
+	{
+		Category category=categoryService.findOne(UUID.fromString(map.get("id").toString()));
+		if(category==null)
+		{
+			System.out.println("Category Not found to be published");
+			return;
+		}
+		
+		category.setStatus(Status.REVIEWED);
+		categoryService.save(category);
+	}
+	public void publishEntity(Map<String,?> map)
+	{
+		BusinessEntity entity=zobonService.find(UUID.fromString(map.get("id").toString()));
+		if(entity==null)
+		{
+			System.out.println("Category Not found to be published");
+			return;
+		}
+		entity.setArName(map.get("arName").toString());
+		entity.setEnName(map.get("enName").toString());
+		entity.setWeb(map.get("web").toString());
+		entity.setFacebook(map.get("fb").toString());
+		entity.setRank(Integer.parseInt(map.get("rank").toString()));
+		entity.setStatus(Status.PUBLISHED);
+		zobonService.save(entity);
+		System.out.println(map);
+	}
+	public void unpublishEntity(Map<String,?> map)
+	{
+		BusinessEntity entity=zobonService.find(UUID.fromString(map.get("id").toString()));
+		if(entity==null)
+		{
+			System.out.println("Category Not found to be published");
+			return;
+		}
+		
+		entity.setStatus(Status.REVIEWED);
+		zobonService.save(entity);
+	}
+	public void insertItem(Map<String,?> map)
 	{
 		
 		Category hotlineCategory=categoryService.findByEnNameAndType("Phone",4001);
@@ -163,7 +296,7 @@ public void insertItem(Map<String,?> map)
 			}
 			item.setStatus(Status.PUBLISHED);
 			ArrayList<String> categories=(ArrayList<String>)anItem.get("enCategories");
-			zobonService.save(item,categories);
+			generateJson(zobonService.save(item,categories));
 //			itemService.save(item);
 //			System.out.println(item);
 //			System.out.println("=======");
@@ -264,7 +397,7 @@ public void insertItem(Map<String,?> map)
 			}
 			item.setStatus(Status.PUBLISHED);
 			ArrayList<String> categories=(ArrayList<String>)anItem.get("enCategories");
-			zobonService.save(item,categories);
+			generateJson(zobonService.save(item,categories));
 //			itemService.save(item);
 //			System.out.println(item);
 //			System.out.println("=======");
@@ -340,7 +473,7 @@ public void insertItem(Map<String,?> map)
 		System.out.println(category);
 		try
 		{
-			categoryService.save(category);
+			generateJson(categoryService.save(category));
 		} catch (DataAccessException dae)
 		{
 			Category updatedCategory=categoryService.findByEnNameAndType(category.getEnName(),category.getType());

@@ -16,4 +16,5 @@ public interface CategoryService
 	Iterable<Category> findNewCategories(Date lastUpdate);
 	Iterable<Category> findUpdatedCategories(Date lastUpdate);
 	Iterable<Category> findUnpublishedCategories(Date lastUpdate);
+	Category findOne(UUID id);
 }

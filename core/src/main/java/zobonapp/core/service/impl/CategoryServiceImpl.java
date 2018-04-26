@@ -78,5 +78,11 @@ public class CategoryServiceImpl implements CategoryService
 		return categoryRepository.findByEnName(enName);
 	}
 
+	@Override
+	public Category findOne(UUID id)
+	{
+		return categoryRepository.findOne(id);
+	}
+
 
 }

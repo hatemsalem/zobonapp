@@ -95,7 +95,26 @@
 			<unmarshal ref="abc"/>
 			<to uri="bean:inserter?method=unpublishOffer"></to>
 		</route>
-		
+		<route >
+			<from uri="file://c:/zadata/work/categories/publish?delete=true&amp;initialDelay=10000" />
+			<unmarshal ref="abc"/>
+			<to uri="bean:inserter?method=publishCategory"></to>
+		</route>
+		<route >
+			<from uri="file://c:/zadata/work/categories/unpublish?delete=true&amp;initialDelay=10000" />
+			<unmarshal ref="abc"/>
+			<to uri="bean:inserter?method=unpublishCategory"></to>
+		</route>
+		<route >
+			<from uri="file://c:/zadata/work/entities/publish?delete=true&amp;initialDelay=10000" />
+			<unmarshal ref="abc"/>
+			<to uri="bean:inserter?method=publishEntity"></to>
+		</route>
+		<route >
+			<from uri="file://c:/zadata/work/entities/unpublish?delete=true&amp;initialDelay=10000" />
+			<unmarshal ref="abc"/>
+			<to uri="bean:inserter?method=unpublishEntity"></to>
+		</route>
 		<route>
 			<from uri="timer://offerRetrofit?period=10m&amp;delay=60000"></from>
 			<log message="====Retrofit Timer triggering====" loggingLevel="WARN"/>
