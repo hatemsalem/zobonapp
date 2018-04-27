@@ -145,5 +145,42 @@ public class ZobonAppServiceImpl implements ZobonAppService
 		Date today=Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
 		return offerRepository.retrofit(new Date(),Status.REVIEWED,Status.PUBLISHED, today);
 	}
+	@Override
+	public void publishCategory(Category category)
+	{
+		
+		category.setStatus(Status.PUBLISHED);
+		categoryRepository.save(category);
+		
+		Date updated=new Date();
+		Iterable<BusinessEntity> touchEntities=itemRepository.findEntitiesInCategory(category);
+		for(BusinessEntity entity:touchEntities)
+		{
+			itemRepository.touchEntity(entity, updated);
+		}
+		Iterable<Offer> touchOffers=offerRepository.findOffersInCategory(category);
+		for(Offer offer:touchOffers)
+		{
+			offerRepository.touchOffer(offer, updated);
+		}
+		
+		System.out.println("=======");
+//		itemRepository.touchPublishedCategoryEntities(category, new Date());
+		
+	}
+	@Override
+	public void publishEntity(BusinessEntity entity)
+	{
+		entity.setStatus(Status.PUBLISHED);
+		itemRepository.save(entity);
+		Date updated=new Date();
+		Iterable<Offer> touchOffers=offerRepository.findOffersInEntity(entity);
+		for(Offer offer:touchOffers)
+		{
+			offerRepository.touchOffer(offer, updated);
+		}
+		
+		
+	}
 	
 }

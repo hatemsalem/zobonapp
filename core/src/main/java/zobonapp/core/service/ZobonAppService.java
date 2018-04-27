@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import zobonapp.core.domain.BusinessEntity;
+import zobonapp.core.domain.Category;
 import zobonapp.core.domain.Offer;
 
 public interface ZobonAppService
@@ -28,4 +29,6 @@ public interface ZobonAppService
 	int updateItemRank(UUID id,int rank);
 	void test();
 	int offerRetrofit();
+	void publishCategory(Category category);
+	void publishEntity(BusinessEntity entity);
 }

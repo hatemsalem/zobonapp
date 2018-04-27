@@ -141,7 +141,7 @@ public class UpdateController
 
 		
 		List<Contact> basicContacts=new Vector<>();
-		String itemRecords=populateItems(zobonAppService.findNewItems(timePoint), detailContacts,  basicContacts);
+		String itemRecords=populateEntities(zobonAppService.findNewItems(timePoint), detailContacts,  basicContacts);
 		int steps=(detailContacts==null)?0:(detailContacts.size()/STEP_SIZE+1);
 		sjFile.add(String.format("\"type\":\"%s\"\n", updateType));
 		sjFile.add(String.format("\"steps\":%d\n", steps));
@@ -173,7 +173,7 @@ public class UpdateController
 
 		
 		List<Contact> basicContacts=new Vector<>();
-		String itemRecords=populateItems(zobonAppService.findUpdatedItems(timePoint), detailContacts,  basicContacts);
+		String itemRecords=populateEntities(zobonAppService.findUpdatedItems(timePoint), detailContacts,  basicContacts);
 		int steps=(detailContacts==null)?0:(detailContacts.size()/STEP_SIZE+1);
 		sjFile.add(String.format("\"steps\":%d\n", steps));
 		sjFile.add(String.format("\"latestUpdate\":%d\n", zobonAppService.latestUpdate().getTime()));
@@ -190,9 +190,9 @@ public class UpdateController
 
 		
 		sjFile.add(String.format("\"latestUpdate\":%d\n", zobonAppService.latestUpdate().getTime()));
-		sjFile.add(String.format("\"deletedCategories\":\n%s", unpublishElements(categoryService.findUnpublishedCategories(timePoint))));
-		sjFile.add(String.format("\"deletedEntities\":\n%s", unpublishElements(zobonAppService.findUnpublishedItems(timePoint))));
-		sjFile.add(String.format("\"deletedOffers\":\n%s", unpublishElements(zobonAppService.findUnpublishedOffers(timePoint))));
+		sjFile.add(String.format("\"deletedCategories\":\n%s", unpublishedItems(categoryService.findUnpublishedCategories(timePoint))));
+		sjFile.add(String.format("\"deletedEntities\":\n%s", unpublishedItems(zobonAppService.findUnpublishedItems(timePoint))));
+		sjFile.add(String.format("\"deletedOffers\":\n%s", unpublishedItems(zobonAppService.findUnpublishedOffers(timePoint))));
 		return sjFile.toString();
 	}
 	private String populateOffers(Iterable<Offer> offers)
@@ -241,7 +241,7 @@ public class UpdateController
 		}
 		return contactRecords.toString();
 	}
-	private String unpublishElements(Iterable<? extends AbstractEntity> elements)
+	private String unpublishedItems(Iterable<? extends AbstractEntity> elements)
 	{
 		StringJoiner elementRecords = new StringJoiner(",\n", "[", "]");
 		for(AbstractEntity element:elements)
@@ -250,7 +250,7 @@ public class UpdateController
 		}
 		return elementRecords.toString();
 	}
-	private String populateItems(Iterable<BusinessEntity> items, List<Contact> detailedContacts,  List<Contact> basicContacts)
+	private String populateEntities(Iterable<BusinessEntity> items, List<Contact> detailedContacts,  List<Contact> basicContacts)
 	{
 		System.out.println("No. Of items:"+items.spliterator().getExactSizeIfKnown());
 		StringJoiner itemRecords = new StringJoiner(",\n", "[", "]");

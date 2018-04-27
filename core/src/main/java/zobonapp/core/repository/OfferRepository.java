@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.repository.CrudRepository;
 
+import zobonapp.core.domain.BusinessEntity;
+import zobonapp.core.domain.Category;
 import zobonapp.core.domain.Offer;
 import zobonapp.core.domain.Status;
 
@@ -30,4 +32,15 @@ public interface OfferRepository extends CrudRepository<Offer, UUID>
 	@Modifying
 	@Query("update Offer o set version=version+1,updated=?1,status=?2 where o.status=?3 and o.endDate<?4 ")
 	int retrofit(Date updated,Status newStatus,Status oldStaus,Date today);
+	
+	@Modifying
+	@Query("update Offer i set i.updated=?2 where i=?1  ")
+	int touchOffer(Offer offer, Date updated);
+	
+	@Query("select distinct i from  Offer i join fetch i.categories c  where  c=?1")
+	Iterable<Offer> findOffersInCategory(Category  category);
+	
+
+	@Query("select distinct i from  Offer i where  i.entity=?1")
+	Iterable<Offer> findOffersInEntity(BusinessEntity  entity);
 }

@@ -125,8 +125,10 @@ public class Inserter
 		category.setEnName(map.get("enName").toString());
 		category.setType(Integer.parseInt(map.get("type").toString()));
 		category.setRank(Integer.parseInt(map.get("rank").toString()));
-		category.setStatus(Status.PUBLISHED);
-		categoryService.save(category);
+		if(category.getStatus()==Status.PUBLISHED)
+			categoryService.save(category);
+		else
+			zobonService.publishCategory(category);
 		System.out.println(map);
 	}
 	public void unpublishCategory(Map<String,?> map)
@@ -154,8 +156,13 @@ public class Inserter
 		entity.setWeb(map.get("web").toString());
 		entity.setFacebook(map.get("fb").toString());
 		entity.setRank(Integer.parseInt(map.get("rank").toString()));
-		entity.setStatus(Status.PUBLISHED);
-		zobonService.save(entity);
+		if(entity.getStatus()==Status.PUBLISHED)
+			zobonService.save(entity);
+		else
+		{
+			zobonService.publishEntity(entity);
+		}
+		
 		System.out.println(map);
 	}
 	public void unpublishEntity(Map<String,?> map)
@@ -426,7 +433,7 @@ public class Inserter
 		}
 		try
 		{
-			Date date=sdf.parse(map.get("startDate").toString());
+			Date date=sdf.parse(map.get("endDate").toString());
 			offer.setEndDate(date);
 		} catch (ParseException e)
 		{
