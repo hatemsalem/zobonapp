@@ -210,6 +210,7 @@ public abstract class OffersScraper
 		offerFields.add(String.format("\"startDate\":\"%s\"", df.format(offer.getStartDate())));
 		offerFields.add(String.format("\"endDate\":\"%s\"", df.format(offer.getEndDate())));
 		offerFields.add(String.format("\"pages\":%d", offer.getPages()));
+		offerFields.add(String.format("\"rank\":%d", offer.getRank()));
 			
 		offerFields.add(String.format("\"assetsPath\":\"%s/%s\"", destAssetsPath.replaceAll("\\\\", "/"),offer.getId()));
 		try

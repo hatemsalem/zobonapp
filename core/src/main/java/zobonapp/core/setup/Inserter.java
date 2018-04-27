@@ -449,6 +449,7 @@ public class Inserter
 		{
 			offer.setStatus(Status.PUBLISHED);
 		}
+		offer.setRank(Integer.parseInt(map.get("rank").toString()));
 		offerRepository.save(offer);
 		System.out.println(map);
 	}
