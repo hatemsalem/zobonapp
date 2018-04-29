@@ -97,8 +97,8 @@ public class OrodShopWorker extends OffersScraper
 				pages.add(imagesArray.get(j).getAsJsonObject().get("path").getAsString());
 			}
 			System.out.println("Id:"+srcOfferId+", For :"+companyId);
-			
-			syncOffer(SRC, srcOfferId, companyId,arName, enName, pages,pages.get(0), startDate, endDate);
+			if(pages.size()>0)
+				syncOffer(SRC, srcOfferId, companyId,arName, enName, pages,pages.get(0), startDate, endDate);
 			
 		}
 

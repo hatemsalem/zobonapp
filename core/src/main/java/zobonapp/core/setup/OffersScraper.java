@@ -1,5 +1,7 @@
 package zobonapp.core.setup;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -147,6 +149,10 @@ public abstract class OffersScraper
 			}
 			
 		}
+		else if(offer.getPages()<pages.size()&&offer.getStatus()!=Status.DRAFT)
+		{
+			offer.setStatus(Status.DRAFT);
+		}
 		if (offer.getStatus() == Status.DRAFT && offer.getPages() >= 0)
 		{
 			for (int i = offer.getPages(); i < pages.size(); i++)
@@ -183,8 +189,6 @@ public abstract class OffersScraper
 			}
 		}
 		zobonAppService.save(offer);
-		
-		
 	}
 	public void generateJsonFile(Offer offer,String entityName)
 	{
@@ -263,13 +267,16 @@ public abstract class OffersScraper
 			client.close();
 			System.out.println("File Download Completed!!!");
 			return true;
-		} catch (ClientProtocolException e)
+		} 
+		catch (ClientProtocolException e)
 		{
 			e.printStackTrace();
-		} catch (UnsupportedOperationException e)
+		} 
+		catch (UnsupportedOperationException e)
 		{
 			e.printStackTrace();
-		} catch (IOException e)
+		} 
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
