@@ -1,7 +1,5 @@
 package zobonapp.core.setup;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -26,7 +24,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.io.JsonStringEncoder;
-import com.fasterxml.jackson.databind.ser.std.JsonValueSerializer;
 
 import zobonapp.core.domain.BusinessEntity;
 import zobonapp.core.domain.Offer;
