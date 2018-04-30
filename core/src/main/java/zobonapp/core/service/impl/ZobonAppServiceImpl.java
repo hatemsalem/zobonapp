@@ -99,7 +99,7 @@ public class ZobonAppServiceImpl implements ZobonAppService
 	@Override
 	public List<UUID> findItemsIdsforHotline(String hotline)
 	{
-		return itemRepository.findItemsIdsforHotline("tel:%"+hotline);
+		return itemRepository.findItemsIdsforHotline("tel:"+hotline);
 	}
 	@Override
 	public int updateItemRank(UUID id, int rank)
