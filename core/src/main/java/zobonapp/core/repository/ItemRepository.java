@@ -51,7 +51,7 @@ public interface ItemRepository extends CrudRepository<BusinessEntity, UUID>
 	@Query(value=latestQuery,nativeQuery=true)
 	Timestamp latestUpdate();
 	
-	@Query(value="select c.entity.id from Contact c where c.uri ilike ?1")
+	@Query(value="select c.entity.id from Contact c where c.uri = ?1")
 	List<UUID> findItemsIdsforHotline(String hotline);
 	
 	@Modifying
