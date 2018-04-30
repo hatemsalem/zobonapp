@@ -511,7 +511,7 @@ public class Inserter
 		{
 			String uri=String.format("file://c://zadata/work/resources/%s/?fileName=%s.webp",resolution, id);
 			recipients.add(uri);
-			zobonService.updateItemRank(id, 1);
+//			zobonService.updateItemRank(id, 1);
 		} 
 		exchange.getIn().getHeaders().put("za.recipients", recipients);
 	}
