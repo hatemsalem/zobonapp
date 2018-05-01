@@ -119,7 +119,7 @@ public class UpdateController
 			result=UpdateType.INIT;
 		else if(System.currentTimeMillis()-lastUpdated>(24*60*60*1000))
 			result=UpdateType.RESET;
-		else if(version <10)
+		else if(version <1)
 			result=UpdateType.BLOCK;
 		else if(version <17)
 			result=UpdateType.WARN;
