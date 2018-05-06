@@ -123,7 +123,7 @@ public abstract class OffersScraper
 			offer.setEntity(item);
 			offer.setStartDate(startDate);
 			offer.setEndDate(endDate);
-
+			System.out.println(String.format("Sync new offer for Entity: %S, with offer Id:%s, and groups:%s", entityEnName,srcOfferId,categories));
 			offer = zobonAppService.save(offer, Arrays.asList(categories.split(",")));
 
 			File file = new File(String.format("%s\\%s", destAssetsPath, offer.getId()));
